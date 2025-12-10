@@ -3,10 +3,34 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { BillingSection } from '@/components/billing';
 
 export default async function SettingsPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+
+  // Get profile with subscription info
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('subscription_tier, subscription_status')
+    .eq('id', user?.id)
+    .single();
+
+  // Get QR code counts
+  const { count: staticCount } = await supabase
+    .from('qr_codes')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user?.id)
+    .eq('type', 'static');
+
+  const { count: dynamicCount } = await supabase
+    .from('qr_codes')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user?.id)
+    .eq('type', 'dynamic');
+
+  const tier = (profile?.subscription_tier || 'free') as 'free' | 'pro' | 'business';
+  const status = profile?.subscription_status || null;
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -38,34 +62,13 @@ export default async function SettingsPage() {
         </div>
       </Card>
 
-      {/* Subscription Section */}
-      <Card className="p-6 glass mb-6">
-        <h2 className="text-lg font-semibold mb-4">Subscription</h2>
-        <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg">
-          <div>
-            <p className="font-medium">Free Plan</p>
-            <p className="text-sm text-muted-foreground">
-              Basic features with static QR codes
-            </p>
-          </div>
-          <a href="/#pricing">
-            <Button>Upgrade to Pro</Button>
-          </a>
-        </div>
-        <div className="mt-4 pt-4 border-t border-border">
-          <h3 className="text-sm font-medium mb-2">Current Usage</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-2xl font-bold">0</p>
-              <p className="text-sm text-muted-foreground">Static QR Codes</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold">0 / 0</p>
-              <p className="text-sm text-muted-foreground">Dynamic QR Codes</p>
-            </div>
-          </div>
-        </div>
-      </Card>
+      {/* Billing Section */}
+      <BillingSection
+        tier={tier}
+        status={status}
+        staticCount={staticCount || 0}
+        dynamicCount={dynamicCount || 0}
+      />
 
       {/* Danger Zone */}
       <Card className="p-6 glass border-red-500/20">

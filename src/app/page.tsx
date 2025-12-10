@@ -1,7 +1,9 @@
+import Link from 'next/link';
 import { QRGenerator } from '@/components/qr';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { PricingSection } from '@/components/pricing';
 
 export default function Home() {
   return (
@@ -27,8 +29,12 @@ export default function Home() {
               <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</a>
               <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
               <a href="#faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
-              <Button variant="outline" size="sm" className="border-primary/50">Sign In</Button>
-              <Button size="sm" className="glow-hover">Get Started</Button>
+              <Link href="/login">
+                <Button variant="outline" size="sm" className="border-primary/50">Sign In</Button>
+              </Link>
+              <Link href="/signup">
+                <Button size="sm" className="glow-hover">Get Started</Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -133,90 +139,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Free Tier */}
-            <Card className="p-8 glass">
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-2">Free</h3>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold">$0</span>
-                  <span className="text-muted-foreground">/forever</span>
-                </div>
-              </div>
-              <ul className="space-y-3 mb-8">
-                {['Unlimited static QR codes', 'Basic colors', 'PNG downloads', 'QRForge watermark'].map((feature) => (
-                  <li key={feature} className="flex items-center gap-2 text-sm">
-                    <svg className="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-              <Button variant="outline" className="w-full">Get Started</Button>
-            </Card>
-
-            {/* Pro Tier */}
-            <Card className="p-8 glass border-primary relative overflow-hidden">
-              <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs px-3 py-1 rounded-bl-lg font-medium">
-                Popular
-              </div>
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-2">Pro</h3>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold">$9</span>
-                  <span className="text-muted-foreground">/month</span>
-                </div>
-              </div>
-              <ul className="space-y-3 mb-8">
-                {[
-                  'Everything in Free',
-                  '50 dynamic QR codes',
-                  'Scan analytics',
-                  'Custom colors & logos',
-                  'SVG/PDF downloads',
-                  'No watermark',
-                ].map((feature) => (
-                  <li key={feature} className="flex items-center gap-2 text-sm">
-                    <svg className="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-              <Button className="w-full glow">Upgrade to Pro</Button>
-            </Card>
-
-            {/* Business Tier */}
-            <Card className="p-8 glass">
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-2">Business</h3>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold">$29</span>
-                  <span className="text-muted-foreground">/month</span>
-                </div>
-              </div>
-              <ul className="space-y-3 mb-8">
-                {[
-                  'Everything in Pro',
-                  'Unlimited dynamic QR codes',
-                  'API access',
-                  'Bulk generation',
-                  'Team members (3)',
-                  'White-label option',
-                ].map((feature) => (
-                  <li key={feature} className="flex items-center gap-2 text-sm">
-                    <svg className="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-              <Button variant="outline" className="w-full">Contact Sales</Button>
-            </Card>
-          </div>
+          <PricingSection />
         </div>
       </section>
 
@@ -249,13 +172,15 @@ export default function Home() {
           <p className="text-muted-foreground mb-8">
             Join thousands of businesses using QRForge to connect with their customers.
           </p>
-          <Button size="lg" className="glow-hover text-lg px-8">
-            Get Started Free
-            <svg className="w-5 h-5 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
-          </Button>
+          <Link href="/signup">
+            <Button size="lg" className="glow-hover text-lg px-8">
+              Get Started Free
+              <svg className="w-5 h-5 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </Button>
+          </Link>
         </div>
       </section>
 
