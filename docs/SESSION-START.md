@@ -90,7 +90,7 @@ RLS policies active. Trigger auto-creates profile on signup.
 
 ```bash
 cd /Users/bentyson/malazan
-npm run dev -- -p 3322    # Dev server on port 3322
+npm run dev               # Dev server on port 3322
 npm run build             # Production build
 ```
 
@@ -127,6 +127,6 @@ Dynamic QR codes are the key lock-in:
 **Quick Start:**
 ```bash
 cd /Users/bentyson/malazan
-npm run dev -- -p 3322
+npm run dev
 # Visit http://localhost:3322
 ```
