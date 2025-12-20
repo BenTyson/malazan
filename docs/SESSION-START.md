@@ -1,7 +1,8 @@
 # QRForge - Session Start Guide
 
-> **Last Updated**: December 19, 2024
-> **Status**: Production Ready - Stripe + SEO Complete
+> **Last Updated**: December 20, 2024
+> **Status**: Production Ready - Core Features Complete
+> **Live URL**: https://qrforge-production.up.railway.app
 
 ## Quick Context
 
@@ -10,26 +11,35 @@ QRForge is a premium QR code generator with analytics and dynamic codes. Goal: p
 ## Current Status
 
 ### Completed
-- Next.js 14 app with TypeScript + Tailwind CSS v4
+- Next.js 15 app with TypeScript + Tailwind CSS v4
 - QR generator with 7 content types (URL, Text, WiFi, vCard, Email, Phone, SMS)
 - Real-time preview with style customization
 - PNG and SVG downloads
 - Full landing page with pricing, features, FAQ
 - Authentication system (Supabase - email + Google OAuth ready)
 - Protected dashboard with navigation
-- QR code creation page
+- **QR code creation and saving to database**
+- **QR code list page with actions (edit, delete, download, copy link)**
+- **Dashboard with real-time stats from database**
 - Dynamic QR codes with short URL redirects (`/r/[code]`)
-- Scan tracking system with analytics
-- Database schema deployed to Supabase
+- **Scan tracking with geolocation (IP-API integration)**
+- **Full analytics dashboard (Pro feature)**
+- Database schema deployed to Supabase with RLS
 - **Stripe integration complete** - checkout, webhooks, customer portal
 - Billing UI with subscription details (status, renewal date, billing interval)
 - **V2 UI Polish** - Dark navy theme with teal/cyan accents, enhanced glassmorphism
 - **SEO Optimized** - Meta tags, OpenGraph, sitemap, robots.txt, JSON-LD structured data
+- **Railway deployment** - Live at qrforge-production.up.railway.app
 
-### Optional Enhancements
-- Custom domain for short URLs
-- Email notifications
+### Planned Enhancements
+- Scan limits (upgrade trigger)
+- QR code expiration dates (Pro+)
+- Password-protected QR codes (Pro+)
+- QR code folders/organization
+- Email scan alerts
+- Bulk QR generation (Business)
 - API endpoints for Business tier
+- Custom domain for short URLs
 
 ## Environment Setup
 
@@ -69,19 +79,22 @@ src/
 │   │   └── callback/route.ts       # OAuth callback
 │   ├── (dashboard)/
 │   │   ├── layout.tsx              # Dashboard layout
-│   │   ├── dashboard/page.tsx      # Overview
-│   │   ├── qr-codes/page.tsx       # QR list
+│   │   ├── dashboard/page.tsx      # Overview with real stats
+│   │   ├── qr-codes/page.tsx       # QR list with actions
 │   │   ├── qr-codes/new/page.tsx   # Create QR
-│   │   ├── analytics/page.tsx      # Analytics
+│   │   ├── qr-codes/[id]/page.tsx  # Edit QR (dynamic only)
+│   │   ├── analytics/page.tsx      # Full analytics dashboard
 │   │   └── settings/page.tsx       # Settings + Billing
 │   ├── api/stripe/
 │   │   ├── checkout/route.ts       # Create checkout session
 │   │   ├── webhook/route.ts        # Handle Stripe events
 │   │   └── portal/route.ts         # Customer portal
-│   └── r/[code]/route.ts           # Dynamic QR redirect
+│   └── r/[code]/route.ts           # Dynamic QR redirect + tracking
 ├── components/
 │   ├── ui/                         # shadcn components
-│   ├── qr/                         # QR components
+│   ├── qr/
+│   │   ├── QRGenerator.tsx         # QR generation form
+│   │   └── QRCodeCard.tsx          # QR list item with actions
 │   ├── dashboard/                  # Dashboard components
 │   ├── pricing/                    # PricingSection component
 │   └── billing/                    # BillingSection component
@@ -93,6 +106,29 @@ src/
 │   └── stripe/                     # Stripe config & client
 └── middleware.ts                   # Auth protection
 ```
+
+## Analytics Features
+
+The analytics dashboard (`/analytics`) includes:
+- Total scans with trend indicators
+- Unique visitors count
+- Scans today
+- Top country
+- Time period breakdowns (This Week, This Month, Avg Daily)
+- Top QR codes by scan count
+- Device type breakdown (mobile/desktop/tablet)
+- Browser breakdown (Chrome/Safari/Firefox/Edge)
+- Country/city breakdown (Pro feature indicator)
+- Recent scans table with location data
+
+## Geolocation Tracking
+
+Scan tracking in `/r/[code]/route.ts`:
+- Uses IP-API (free tier: 45 requests/minute)
+- Captures: country, city, region
+- Skips private/local IPs
+- 2-second timeout (non-blocking)
+- Stores in `scans` table
 
 ## SEO Configuration
 
@@ -116,17 +152,19 @@ src/
 
 Tables deployed:
 - `profiles` - User profiles with subscription_tier, stripe_customer_id, subscription_status
-- `qr_codes` - QR codes with content, style, short_code
-- `scans` - Scan analytics (device, location, timestamp)
+- `qr_codes` - QR codes with content, style, short_code, scan_count
+- `scans` - Scan analytics (device_type, os, browser, country, city, region, referrer)
 
 RLS policies active. Trigger auto-creates profile on signup.
 
 ## Key Commands
 
 ```bash
-cd /Users/bentyson/malazan
+cd /Users/bentyson/QRForge
 npm run dev               # Dev server on port 3322
 npm run build             # Production build
+railway status            # Check Railway deployment
+railway logs              # View deployment logs
 ```
 
 ## Local Development with Stripe
@@ -154,6 +192,14 @@ Dynamic QR codes are the key lock-in:
 - We redirect to their destination
 - User CAN'T churn without reprinting all materials
 
+## User Journey (Complete)
+
+1. **Create** - Generate QR code with customization
+2. **Save** - Store in database with metadata
+3. **View** - See all QR codes in list view
+4. **Manage** - Edit destination, delete, download
+5. **Track** - View analytics and scan data
+
 ## Subscription Flow
 
 1. User clicks "Upgrade" on pricing or settings page
@@ -169,7 +215,7 @@ Dynamic QR codes are the key lock-in:
 
 **Quick Start:**
 ```bash
-cd /Users/bentyson/malazan
+cd /Users/bentyson/QRForge
 npm run dev
 # Visit http://localhost:3322
 ```

@@ -1,6 +1,7 @@
 # Stripe Setup Guide
 
 > **Status**: Configured and Working (Test Mode)
+> **Live URL**: https://qrforge-production.up.railway.app
 
 ## Current Configuration
 
@@ -34,9 +35,9 @@ The webhook secret in `.env.local` is configured for local development.
 
 Use any future expiry date and any 3-digit CVC.
 
-## Production Deployment
+## Production Deployment (Railway)
 
-When deploying to production:
+When deploying to Railway:
 
 1. **Switch to Live Keys**
    - Go to Stripe Dashboard → Developers → API keys
@@ -45,7 +46,7 @@ When deploying to production:
 
 2. **Create Production Webhook**
    - Developers → Webhooks → Add endpoint
-   - URL: `https://yourdomain.com/api/stripe/webhook`
+   - URL: `https://qrforge-production.up.railway.app/api/stripe/webhook`
    - Events:
      - `checkout.session.completed`
      - `customer.subscription.updated`
@@ -53,8 +54,12 @@ When deploying to production:
      - `invoice.payment_failed`
    - Copy the signing secret to `STRIPE_WEBHOOK_SECRET`
 
-3. **Update Environment Variables**
-   - Set all Stripe env vars in your hosting platform (Vercel, etc.)
+3. **Update Railway Environment Variables**
+   - Go to Railway dashboard → QRForge → Variables
+   - Set all Stripe env vars with live credentials:
+     - `STRIPE_SECRET_KEY=sk_live_...`
+     - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...`
+     - `STRIPE_WEBHOOK_SECRET=whsec_...` (production webhook secret)
 
 ## Code Architecture
 
@@ -119,16 +124,33 @@ subscription_status: 'active' | 'past_due' | 'canceled' | 'unpaid'
 stripe_customer_id: 'cus_...'
 ```
 
+## Tier Features
+
+| Feature | Free | Pro | Business |
+|---------|------|-----|----------|
+| Static QR codes | Unlimited | Unlimited | Unlimited |
+| Dynamic QR codes | 0 | 50 | Unlimited |
+| Analytics | No | Yes | Yes |
+| Geolocation tracking | No | Yes | Yes |
+| Scan history | No | Yes | Yes |
+
 ## Troubleshooting
 
 ### Webhook not receiving events
 - Ensure Stripe CLI is running: `stripe listen --forward-to localhost:3322/api/stripe/webhook`
 - Check the webhook secret matches `.env.local`
+- For production, verify webhook URL is correct in Stripe Dashboard
 
 ### Subscription not updating after payment
 - Check server logs for webhook errors
 - Verify `SUPABASE_SERVICE_ROLE_KEY` is set (webhook uses admin client)
+- Check Railway logs: `railway logs`
 
 ### Customer portal not opening
 - User must have a `stripe_customer_id` in their profile
 - This is set automatically on first checkout
+
+### Railway Deployment Issues
+- Ensure all Stripe env vars are set in Railway dashboard
+- Webhook URL must match Railway domain exactly
+- Redeploy after changing environment variables: `railway up`

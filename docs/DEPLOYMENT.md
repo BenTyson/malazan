@@ -1,12 +1,36 @@
 # Deployment Guide
 
-## Railway (Recommended)
+> **Live URL**: https://qrforge-production.up.railway.app
+
+## Railway (Production)
 
 ### Setup
 
 1. Go to [railway.app](https://railway.app)
 2. New Project → Deploy from GitHub repo
-3. Select `malazan` repository
+3. Select `QRForge` repository
+
+### Nixpacks Configuration
+
+The project uses a custom `nixpacks.toml` to handle Railway builds:
+
+```toml
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["npm ci --ignore-scripts"]
+cacheDirectories = []
+
+[phases.build]
+cmds = ["npm run build"]
+cacheDirectories = []
+
+[start]
+cmd = "npm start"
+```
+
+**Note:** `cacheDirectories = []` prevents EBUSY cache conflicts during builds.
 
 ### Environment Variables
 
@@ -16,7 +40,7 @@ Add all variables from `.env.local`:
 NEXT_PUBLIC_SUPABASE_URL=https://otdlggbhsmgqhsviazho.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-NEXT_PUBLIC_APP_URL=https://your-railway-domain.up.railway.app
+NEXT_PUBLIC_APP_URL=https://qrforge-production.up.railway.app
 STRIPE_SECRET_KEY=sk_live_...
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...
@@ -53,11 +77,25 @@ In Supabase → Authentication → URL Configuration:
 2. Add redirect URI: `https://otdlggbhsmgqhsviazho.supabase.co/auth/v1/callback`
 3. Copy Client ID and Secret to Supabase → Auth → Providers → Google
 
+## Railway CLI Commands
+
+```bash
+railway login                    # Authenticate
+railway status                   # Check project status
+railway domain                   # View domains
+railway logs                     # View deployment logs
+railway up                       # Manual deploy
+```
+
 ## Post-Deployment Checklist
 
-- [ ] Verify signup/login works
-- [ ] Test QR code creation
-- [ ] Test dynamic QR redirect
+- [x] Verify signup/login works
+- [x] Test QR code creation and saving
+- [x] Test QR code list and actions (edit, delete, download)
+- [x] Test dynamic QR redirect (`/r/[code]`)
+- [x] Verify dashboard shows real stats
+- [x] Test analytics page with scan data
+- [x] Verify geolocation tracking on scans
 - [ ] Configure Stripe webhook for production URL
 - [ ] Test checkout flow with test card
 - [ ] Switch Stripe to live mode when ready
