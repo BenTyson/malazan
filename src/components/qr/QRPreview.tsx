@@ -135,7 +135,7 @@ export function QRPreview({
       {/* Loading Indicator */}
       {isGenerating && qrDataURL && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/50 rounded-lg">
-          <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
         </div>
       )}
 

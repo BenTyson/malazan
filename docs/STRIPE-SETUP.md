@@ -1,89 +1,134 @@
 # Stripe Setup Guide
 
-## Overview
+> **Status**: Configured and Working (Test Mode)
 
-Stripe integration is pre-built. API routes, hooks, and UI components are ready. Just needs configuration.
+## Current Configuration
 
-## Step 1: Create Stripe Account
+Stripe is fully integrated with test mode credentials. All environment variables are set in `.env.local`.
 
-1. Go to [stripe.com](https://stripe.com)
-2. Create account or sign in
-3. Complete business verification (can use test mode first)
+### Products Created
+| Plan | Monthly | Yearly |
+|------|---------|--------|
+| Pro | $9/mo (`price_1Sfvae2X6Eyg5ZIfGgRLAPfJ`) | $90/yr (`price_1Sfvae2X6Eyg5ZIfkXKjO9XF`) |
+| Business | $29/mo (`price_1SfvbM2X6Eyg5ZIf2b6vpwru`) | $290/yr (`price_1SfvbM2X6Eyg5ZIfnixYn5j1`) |
 
-## Step 2: Get API Keys
+## Local Development
 
-1. Go to Developers → API keys
-2. Copy:
-   - **Publishable key** (starts with `pk_`)
-   - **Secret key** (starts with `sk_`)
+### Running Webhooks Locally
 
-## Step 3: Create Products
+Stripe CLI forwards webhook events to your local server:
 
-In Stripe Dashboard → Products → Add product:
-
-### Pro Plan
-- Name: `QRForge Pro`
-- Create 2 prices:
-  - Monthly: $9/month, recurring
-  - Yearly: $90/year, recurring
-
-### Business Plan
-- Name: `QRForge Business`
-- Create 2 prices:
-  - Monthly: $29/month, recurring
-  - Yearly: $290/year, recurring
-
-Copy all 4 price IDs (start with `price_`).
-
-## Step 4: Update .env.local
-
-```env
-STRIPE_SECRET_KEY=sk_test_...
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-STRIPE_PRICE_PRO_MONTHLY=price_...
-STRIPE_PRICE_PRO_YEARLY=price_...
-STRIPE_PRICE_BUSINESS_MONTHLY=price_...
-STRIPE_PRICE_BUSINESS_YEARLY=price_...
+```bash
+stripe listen --forward-to localhost:3322/api/stripe/webhook
 ```
 
-## Step 5: Webhook Setup (Production)
+The webhook secret in `.env.local` is configured for local development.
 
-For production, create webhook endpoint:
+### Test Cards
 
-1. Developers → Webhooks → Add endpoint
-2. URL: `https://yourdomain.com/api/stripe/webhook`
-3. Events to listen for:
-   - `checkout.session.completed`
-   - `customer.subscription.updated`
-   - `customer.subscription.deleted`
-   - `invoice.payment_failed`
-4. Copy signing secret to `STRIPE_WEBHOOK_SECRET`
+| Card | Result |
+|------|--------|
+| `4242 4242 4242 4242` | Success |
+| `4000 0000 0000 0002` | Declined |
+| `4000 0000 0000 3220` | 3D Secure required |
 
-## Step 6: Test Mode
+Use any future expiry date and any 3-digit CVC.
 
-Use test mode first:
-- Test card: `4242 4242 4242 4242`
-- Any future expiry, any CVC
+## Production Deployment
 
-## Existing Code
+When deploying to production:
+
+1. **Switch to Live Keys**
+   - Go to Stripe Dashboard → Developers → API keys
+   - Toggle off "Test mode"
+   - Copy live `pk_live_` and `sk_live_` keys
+
+2. **Create Production Webhook**
+   - Developers → Webhooks → Add endpoint
+   - URL: `https://yourdomain.com/api/stripe/webhook`
+   - Events:
+     - `checkout.session.completed`
+     - `customer.subscription.updated`
+     - `customer.subscription.deleted`
+     - `invoice.payment_failed`
+   - Copy the signing secret to `STRIPE_WEBHOOK_SECRET`
+
+3. **Update Environment Variables**
+   - Set all Stripe env vars in your hosting platform (Vercel, etc.)
+
+## Code Architecture
 
 | File | Purpose |
 |------|---------|
-| `src/lib/stripe/config.ts` | Stripe instance, price config |
+| `src/lib/stripe/config.ts` | Stripe instance, price IDs, plan definitions |
 | `src/lib/stripe/client.ts` | Client-side Stripe loader |
 | `src/app/api/stripe/checkout/route.ts` | Creates checkout sessions |
-| `src/app/api/stripe/webhook/route.ts` | Handles subscription events |
-| `src/app/api/stripe/portal/route.ts` | Customer billing portal |
-| `src/hooks/useStripe.ts` | React hooks for checkout/portal |
-| `src/components/pricing/PricingSection.tsx` | Pricing UI with checkout |
-| `src/components/billing/BillingSection.tsx` | Settings billing UI |
+| `src/app/api/stripe/webhook/route.ts` | Handles subscription lifecycle events |
+| `src/app/api/stripe/portal/route.ts` | Opens Stripe Customer Portal |
+| `src/hooks/useStripe.ts` | React hooks for checkout & portal |
+| `src/components/pricing/PricingSection.tsx` | Landing page pricing UI |
+| `src/components/billing/BillingSection.tsx` | Settings page billing UI |
 
-## Flow
+## Subscription Flow
 
-1. User clicks "Upgrade" → `useStripeCheckout` hook
-2. POST to `/api/stripe/checkout` → creates session
-3. Redirect to Stripe Checkout
-4. User pays → Stripe sends webhook
-5. Webhook updates `profiles.subscription_tier`
-6. User returns to app with upgraded account
+```
+User clicks Upgrade
+       ↓
+POST /api/stripe/checkout
+       ↓
+Redirect to Stripe Checkout
+       ↓
+User completes payment
+       ↓
+Stripe sends webhook (checkout.session.completed)
+       ↓
+Webhook updates profiles table:
+  - subscription_tier: 'pro' | 'business'
+  - subscription_status: 'active'
+  - stripe_customer_id: 'cus_...'
+       ↓
+User redirected back to /dashboard?success=true
+```
+
+## Subscription Management
+
+Users can manage their subscription via Stripe Customer Portal:
+- Update payment method
+- View invoice history
+- Cancel subscription
+- Resume cancelled subscription
+
+Access: Settings page → "Manage Subscription" button
+
+## Webhook Events Handled
+
+| Event | Action |
+|-------|--------|
+| `checkout.session.completed` | Set tier to purchased plan, status to active |
+| `customer.subscription.updated` | Sync tier and status changes |
+| `customer.subscription.deleted` | Downgrade to free tier |
+| `invoice.payment_failed` | Set status to past_due |
+
+## Database Fields
+
+The `profiles` table stores subscription state:
+
+```sql
+subscription_tier: 'free' | 'pro' | 'business'
+subscription_status: 'active' | 'past_due' | 'canceled' | 'unpaid'
+stripe_customer_id: 'cus_...'
+```
+
+## Troubleshooting
+
+### Webhook not receiving events
+- Ensure Stripe CLI is running: `stripe listen --forward-to localhost:3322/api/stripe/webhook`
+- Check the webhook secret matches `.env.local`
+
+### Subscription not updating after payment
+- Check server logs for webhook errors
+- Verify `SUPABASE_SERVICE_ROLE_KEY` is set (webhook uses admin client)
+
+### Customer portal not opening
+- User must have a `stripe_customer_id` in their profile
+- This is set automatically on first checkout

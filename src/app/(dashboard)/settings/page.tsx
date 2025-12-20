@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { stripe } from '@/lib/stripe/config';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,9 +13,45 @@ export default async function SettingsPage() {
   // Get profile with subscription info
   const { data: profile } = await supabase
     .from('profiles')
-    .select('subscription_tier, subscription_status')
+    .select('subscription_tier, subscription_status, stripe_customer_id')
     .eq('id', user?.id)
     .single();
+
+  // Fetch subscription details from Stripe if user has a customer ID
+  let subscriptionDetails: {
+    currentPeriodEnd: Date | null;
+    cancelAtPeriodEnd: boolean;
+    interval: 'month' | 'year' | null;
+  } = {
+    currentPeriodEnd: null,
+    cancelAtPeriodEnd: false,
+    interval: null,
+  };
+
+  if (profile?.stripe_customer_id) {
+    try {
+      const subscriptions = await stripe.subscriptions.list({
+        customer: profile.stripe_customer_id,
+        status: 'all',
+        limit: 1,
+      });
+
+      const activeSub = subscriptions.data[0];
+      if (activeSub) {
+        // In Stripe API 2025+, current_period_end is on subscription items
+        const firstItem = activeSub.items.data[0];
+        subscriptionDetails = {
+          currentPeriodEnd: firstItem?.current_period_end
+            ? new Date(firstItem.current_period_end * 1000)
+            : null,
+          cancelAtPeriodEnd: activeSub.cancel_at_period_end,
+          interval: firstItem?.price.recurring?.interval as 'month' | 'year' | null,
+        };
+      }
+    } catch (error) {
+      console.error('Failed to fetch subscription details:', error);
+    }
+  }
 
   // Get QR code counts
   const { count: staticCount } = await supabase
@@ -68,6 +105,9 @@ export default async function SettingsPage() {
         status={status}
         staticCount={staticCount || 0}
         dynamicCount={dynamicCount || 0}
+        currentPeriodEnd={subscriptionDetails.currentPeriodEnd?.toISOString() || null}
+        cancelAtPeriodEnd={subscriptionDetails.cancelAtPeriodEnd}
+        interval={subscriptionDetails.interval}
       />
 
       {/* Danger Zone */}

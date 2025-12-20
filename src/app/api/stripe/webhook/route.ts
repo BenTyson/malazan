@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { stripe } from '@/lib/stripe/config';
+import { stripe, STRIPE_PRICES } from '@/lib/stripe/config';
 import { createClient } from '@supabase/supabase-js';
 import type Stripe from 'stripe';
 
@@ -102,13 +102,13 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     return;
   }
 
-  // Determine plan from price
+  // Determine plan from price ID by matching against configured prices
   const priceId = subscription.items.data[0]?.price.id;
   let tier: 'free' | 'pro' | 'business' = 'free';
 
-  if (priceId?.includes('pro') || subscription.metadata?.plan === 'pro') {
+  if (priceId === STRIPE_PRICES.pro_monthly || priceId === STRIPE_PRICES.pro_yearly) {
     tier = 'pro';
-  } else if (priceId?.includes('business') || subscription.metadata?.plan === 'business') {
+  } else if (priceId === STRIPE_PRICES.business_monthly || priceId === STRIPE_PRICES.business_yearly) {
     tier = 'business';
   }
 

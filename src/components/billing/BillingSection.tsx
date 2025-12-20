@@ -10,6 +10,9 @@ interface BillingSectionProps {
   status: string | null;
   staticCount: number;
   dynamicCount: number;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  interval: 'month' | 'year' | null;
 }
 
 const TIER_INFO = {
@@ -26,16 +29,33 @@ const TIER_INFO = {
   business: {
     name: 'Business',
     dynamicLimit: Infinity,
-    color: 'bg-violet-500/20 text-violet-400',
+    color: 'bg-cyan-500/20 text-cyan-400',
   },
 };
 
-export function BillingSection({ tier, status, staticCount, dynamicCount }: BillingSectionProps) {
+export function BillingSection({
+  tier,
+  status,
+  staticCount,
+  dynamicCount,
+  currentPeriodEnd,
+  cancelAtPeriodEnd,
+  interval,
+}: BillingSectionProps) {
   const { checkout, loading: checkoutLoading } = useStripeCheckout();
   const { openPortal, loading: portalLoading } = useStripePortal();
 
   const tierInfo = TIER_INFO[tier];
   const isPaid = tier !== 'free';
+
+  // Format renewal date
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
 
   return (
     <Card className="p-6 glass mb-6">
@@ -75,20 +95,48 @@ export function BillingSection({ tier, status, staticCount, dynamicCount }: Bill
         )}
       </div>
 
-      {/* Status indicator for paid plans */}
-      {isPaid && status && (
-        <div className="mb-4 flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Status:</span>
-          <Badge className={
-            status === 'active' ? 'bg-green-500/20 text-green-400' :
-            status === 'past_due' ? 'bg-yellow-500/20 text-yellow-400' :
-            'bg-red-500/20 text-red-400'
-          }>
-            {status === 'active' && 'Active'}
-            {status === 'past_due' && 'Past Due'}
-            {status === 'canceled' && 'Canceled'}
-            {status === 'unpaid' && 'Unpaid'}
-          </Badge>
+      {/* Subscription details for paid plans */}
+      {isPaid && (
+        <div className="mb-4 p-3 bg-secondary/20 rounded-lg space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">Status</span>
+            <Badge className={
+              status === 'active' ? 'bg-green-500/20 text-green-400' :
+              status === 'past_due' ? 'bg-yellow-500/20 text-yellow-400' :
+              'bg-red-500/20 text-red-400'
+            }>
+              {status === 'active' && 'Active'}
+              {status === 'past_due' && 'Past Due'}
+              {status === 'canceled' && 'Canceled'}
+              {status === 'unpaid' && 'Unpaid'}
+            </Badge>
+          </div>
+
+          {interval && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Billing</span>
+              <span className="text-sm font-medium">
+                {interval === 'month' ? 'Monthly' : 'Yearly'}
+              </span>
+            </div>
+          )}
+
+          {currentPeriodEnd && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">
+                {cancelAtPeriodEnd ? 'Access until' : 'Renews on'}
+              </span>
+              <span className="text-sm font-medium">
+                {formatDate(currentPeriodEnd)}
+              </span>
+            </div>
+          )}
+
+          {cancelAtPeriodEnd && (
+            <div className="mt-2 p-2 bg-yellow-500/10 border border-yellow-500/20 rounded text-sm text-yellow-400">
+              Your subscription is set to cancel. You'll retain access until the end of your billing period.
+            </div>
+          )}
         </div>
       )}
 
@@ -144,7 +192,7 @@ export function BillingSection({ tier, status, staticCount, dynamicCount }: Bill
       )}
 
       {tier === 'pro' && (
-        <div className="mt-4 p-4 bg-violet-500/10 rounded-lg border border-violet-500/20">
+        <div className="mt-4 p-4 bg-cyan-500/10 rounded-lg border border-cyan-500/20">
           <p className="text-sm font-medium mb-2">Need More?</p>
           <p className="text-xs text-muted-foreground mb-3">
             Upgrade to Business for unlimited dynamic QR codes, API access, and team features.

@@ -15,8 +15,8 @@ interface QRStyleEditorProps {
 const PRESET_COLORS = [
   { fg: '#000000', bg: '#ffffff', name: 'Classic' },
   { fg: '#1e3a5f', bg: '#ffffff', name: 'Navy' },
-  { fg: '#6366f1', bg: '#ffffff', name: 'Indigo' },
-  { fg: '#8b5cf6', bg: '#ffffff', name: 'Violet' },
+  { fg: '#14b8a6', bg: '#ffffff', name: 'Teal' },
+  { fg: '#06b6d4', bg: '#ffffff', name: 'Cyan' },
   { fg: '#059669', bg: '#ffffff', name: 'Emerald' },
   { fg: '#dc2626', bg: '#ffffff', name: 'Red' },
   { fg: '#000000', bg: '#fef3c7', name: 'Cream' },

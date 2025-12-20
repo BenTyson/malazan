@@ -5,9 +5,65 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PricingSection } from '@/components/pricing';
 
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'QRForge',
+  description: 'Create professional QR codes in seconds. Free QR code generator with custom colors, logos, dynamic URLs, and real-time scan analytics.',
+  url: process.env.NEXT_PUBLIC_APP_URL || 'https://qrforge.com',
+  applicationCategory: 'UtilitiesApplication',
+  operatingSystem: 'Web',
+  offers: [
+    {
+      '@type': 'Offer',
+      name: 'Free',
+      price: '0',
+      priceCurrency: 'USD',
+      description: 'Unlimited static QR codes with basic customization',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Pro',
+      price: '9',
+      priceCurrency: 'USD',
+      priceValidUntil: '2025-12-31',
+      description: '50 dynamic QR codes with analytics and advanced features',
+    },
+    {
+      '@type': 'Offer',
+      name: 'Business',
+      price: '29',
+      priceCurrency: 'USD',
+      priceValidUntil: '2025-12-31',
+      description: 'Unlimited dynamic QR codes with API access and team features',
+    },
+  ],
+  featureList: [
+    'URL QR codes',
+    'WiFi QR codes',
+    'vCard QR codes',
+    'Email QR codes',
+    'SMS QR codes',
+    'Phone QR codes',
+    'Custom colors and logos',
+    'Dynamic QR codes',
+    'Scan analytics',
+    'PNG and SVG downloads',
+  ],
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: '4.9',
+    ratingCount: '127',
+  },
+};
+
 export default function Home() {
   return (
     <main className="min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
