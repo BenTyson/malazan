@@ -1,8 +1,36 @@
 # QRForge - Session Start Guide
 
-> **Last Updated**: December 20, 2024
+> **Last Updated**: December 21, 2024
 > **Status**: Production Ready - Core Features Complete
 > **Live URL**: https://qrforge-production.up.railway.app
+
+---
+
+## ⚠️ CRITICAL: Branch Workflow
+
+```
+YOU ARE ON: develop (default)
+PRODUCTION: main (DO NOT push directly)
+```
+
+**Before making any changes, verify:**
+```bash
+git branch        # Should show: * develop
+git checkout develop   # If not on develop
+git pull origin develop
+```
+
+**After finishing work:**
+```bash
+git push origin develop
+# Tell user: "Changes pushed to develop. Create PR to main to deploy."
+```
+
+**NEVER run:** `git push origin main`
+
+See `docs/WORKFLOW.md` for full details.
+
+---
 
 ## Quick Context
 
@@ -30,11 +58,12 @@ QRForge is a premium QR code generator with analytics and dynamic codes. Goal: p
 - **V2 UI Polish** - Dark navy theme with teal/cyan accents, enhanced glassmorphism
 - **SEO Optimized** - Meta tags, OpenGraph, sitemap, robots.txt, JSON-LD structured data
 - **Railway deployment** - Live at qrforge-production.up.railway.app
+- **Scan limits** - Free: 100/mo, Pro: 10k/mo, Business: unlimited + usage bar
+- **QR expiration dates** - Set expiry on dynamic QR codes (Pro+)
+- **Password protection** - Require password to access QR destination (Pro+)
+- **Branch workflow** - develop → PR → main (production)
 
 ### Planned Enhancements
-- Scan limits (upgrade trigger)
-- QR code expiration dates (Pro+)
-- Password-protected QR codes (Pro+)
 - QR code folders/organization
 - Email scan alerts
 - Bulk QR generation (Business)
