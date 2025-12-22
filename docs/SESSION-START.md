@@ -1,7 +1,7 @@
 # QRForge - Session Start Guide
 
-> **Last Updated**: December 21, 2024
-> **Status**: Production Ready - Core Features Complete
+> **Last Updated**: December 22, 2024
+> **Status**: Pre-Launch - Pending Stripe Live Mode
 > **Live URL**: https://qrforge-production.up.railway.app
 
 ---
@@ -102,23 +102,30 @@ src/
 │   ├── sitemap.ts                  # Dynamic sitemap
 │   ├── robots.ts                   # Robots.txt config
 │   ├── globals.css                 # Theme + custom CSS
+│   ├── expired/page.tsx            # QR code expired page
+│   ├── limit-reached/page.tsx      # Scan limit exceeded page
 │   ├── (auth)/
 │   │   ├── login/page.tsx          # Login (+ Google OAuth)
 │   │   ├── signup/page.tsx         # Signup (+ Google OAuth)
 │   │   └── callback/route.ts       # OAuth callback
 │   ├── (dashboard)/
 │   │   ├── layout.tsx              # Dashboard layout
-│   │   ├── dashboard/page.tsx      # Overview with real stats
+│   │   ├── dashboard/page.tsx      # Overview with real stats + usage bar
 │   │   ├── qr-codes/page.tsx       # QR list with actions
-│   │   ├── qr-codes/new/page.tsx   # Create QR
+│   │   ├── qr-codes/new/page.tsx   # Create QR (with expiry/password)
 │   │   ├── qr-codes/[id]/page.tsx  # Edit QR (dynamic only)
 │   │   ├── analytics/page.tsx      # Full analytics dashboard
 │   │   └── settings/page.tsx       # Settings + Billing
-│   ├── api/stripe/
-│   │   ├── checkout/route.ts       # Create checkout session
-│   │   ├── webhook/route.ts        # Handle Stripe events
-│   │   └── portal/route.ts         # Customer portal
-│   └── r/[code]/route.ts           # Dynamic QR redirect + tracking
+│   ├── api/
+│   │   ├── stripe/
+│   │   │   ├── checkout/route.ts   # Create checkout session
+│   │   │   ├── webhook/route.ts    # Handle Stripe events
+│   │   │   └── portal/route.ts     # Customer portal
+│   │   └── qr/
+│   │       └── verify-password/route.ts  # Password verification
+│   └── r/[code]/
+│       ├── route.ts                # Dynamic QR redirect + tracking
+│       └── unlock/page.tsx         # Password entry page
 ├── components/
 │   ├── ui/                         # shadcn components
 │   ├── qr/
@@ -132,7 +139,7 @@ src/
 ├── lib/
 │   ├── qr/                         # QR generation
 │   ├── supabase/                   # Supabase clients
-│   └── stripe/                     # Stripe config & client
+│   └── stripe/                     # Stripe config (with SCAN_LIMITS)
 └── middleware.ts                   # Auth protection
 ```
 
@@ -180,11 +187,11 @@ Scan tracking in `/r/[code]/route.ts`:
 ## Database (Supabase)
 
 Tables deployed:
-- `profiles` - User profiles with subscription_tier, stripe_customer_id, subscription_status
-- `qr_codes` - QR codes with content, style, short_code, scan_count
+- `profiles` - User profiles with subscription_tier, stripe_customer_id, subscription_status, **monthly_scan_count**, **scan_count_reset_at**
+- `qr_codes` - QR codes with content, style, short_code, scan_count, **expires_at**, **password_hash**
 - `scans` - Scan analytics (device_type, os, browser, country, city, region, referrer)
 
-RLS policies active. Trigger auto-creates profile on signup.
+RLS policies active. Trigger auto-creates profile on signup. Trigger auto-increments monthly_scan_count on scan.
 
 ## Key Commands
 
@@ -242,9 +249,30 @@ Dynamic QR codes are the key lock-in:
 
 ---
 
+## Launch Status
+
+**Current:** Pre-launch, Stripe in test mode
+
+**To Go Live:**
+1. Switch Stripe to live mode (see `docs/LAUNCH-CHECKLIST.md`)
+2. Update Railway env vars with live keys
+3. Create production webhook in Stripe
+4. Update Supabase auth URLs
+
+**See Also:**
+- `docs/WORKFLOW.md` - Branch workflow (develop → main)
+- `docs/DEPLOYMENT.md` - Railway deployment guide
+- `docs/LAUNCH-CHECKLIST.md` - Full launch checklist
+- `docs/STRIPE-SETUP.md` - Stripe configuration
+- `docs/AGENT-WORKFLOW.md` - Universal agent workflow rules
+
+---
+
 **Quick Start:**
 ```bash
 cd /Users/bentyson/QRForge
-npm run dev
+git checkout develop      # Ensure on develop branch
+git pull origin develop   # Get latest
+npm run dev               # Dev server on port 3322
 # Visit http://localhost:3322
 ```
