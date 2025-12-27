@@ -10,6 +10,7 @@ interface BillingSectionProps {
   status: string | null;
   staticCount: number;
   dynamicCount: number;
+  monthlyScanCount: number;
   currentPeriodEnd: string | null;
   cancelAtPeriodEnd: boolean;
   interval: 'month' | 'year' | null;
@@ -19,16 +20,19 @@ const TIER_INFO = {
   free: {
     name: 'Free',
     dynamicLimit: 0,
+    scanLimit: 100,
     color: 'bg-zinc-500/20 text-zinc-400',
   },
   pro: {
     name: 'Pro',
     dynamicLimit: 50,
+    scanLimit: 10000,
     color: 'bg-primary/20 text-primary',
   },
   business: {
     name: 'Business',
     dynamicLimit: Infinity,
+    scanLimit: Infinity,
     color: 'bg-cyan-500/20 text-cyan-400',
   },
 };
@@ -38,6 +42,7 @@ export function BillingSection({
   status,
   staticCount,
   dynamicCount,
+  monthlyScanCount,
   currentPeriodEnd,
   cancelAtPeriodEnd,
   interval,
@@ -143,7 +148,7 @@ export function BillingSection({
       {/* Usage */}
       <div className="pt-4 border-t border-border">
         <h3 className="text-sm font-medium mb-3">Current Usage</h3>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <div className="p-3 bg-secondary/20 rounded-lg">
             <p className="text-2xl font-bold">{staticCount}</p>
             <p className="text-sm text-muted-foreground">Static QR Codes</p>
@@ -153,12 +158,24 @@ export function BillingSection({
             <p className="text-2xl font-bold">
               {dynamicCount}
               <span className="text-lg text-muted-foreground">
-                {' '}/ {tierInfo.dynamicLimit === Infinity ? '∞' : tierInfo.dynamicLimit}
+                /{tierInfo.dynamicLimit === Infinity ? '∞' : tierInfo.dynamicLimit}
               </span>
             </p>
             <p className="text-sm text-muted-foreground">Dynamic QR Codes</p>
             {tier === 'free' && (
               <p className="text-xs text-primary mt-1">Upgrade to unlock</p>
+            )}
+          </div>
+          <div className="p-3 bg-secondary/20 rounded-lg">
+            <p className="text-2xl font-bold">
+              {monthlyScanCount.toLocaleString()}
+              <span className="text-lg text-muted-foreground">
+                /{tierInfo.scanLimit === Infinity ? '∞' : tierInfo.scanLimit.toLocaleString()}
+              </span>
+            </p>
+            <p className="text-sm text-muted-foreground">Scans This Month</p>
+            {monthlyScanCount >= tierInfo.scanLimit && tierInfo.scanLimit !== Infinity && (
+              <p className="text-xs text-red-400 mt-1">Limit reached</p>
             )}
           </div>
         </div>

@@ -1,14 +1,16 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { QRGenerator } from '@/components/qr';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PricingSection } from '@/components/pricing';
+import { Footer } from '@/components/layout';
 
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
-  name: 'QRForge',
+  name: 'QRWolf',
   description: 'Create professional QR codes in seconds. Free QR code generator with custom colors, logos, dynamic URLs, and real-time scan analytics.',
   url: process.env.NEXT_PUBLIC_APP_URL || 'https://qrforge.com',
   applicationCategory: 'UtilitiesApplication',
@@ -68,19 +70,15 @@ export default function Home() {
       <nav className="fixed top-0 left-0 right-0 z-50 glass">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                  <rect x="3" y="3" width="7" height="7" rx="1" />
-                  <rect x="14" y="3" width="7" height="7" rx="1" />
-                  <rect x="3" y="14" width="7" height="7" rx="1" />
-                  <rect x="14" y="14" width="3" height="3" />
-                  <rect x="18" y="14" width="3" height="3" />
-                  <rect x="14" y="18" width="3" height="3" />
-                </svg>
-              </div>
-              <span className="text-xl font-bold gradient-text">QRForge</span>
-            </div>
+            <Link href="/" className="flex items-center gap-2">
+              <Image
+                src="/QRWolf_Logo_Icon.png"
+                alt="QRWolf"
+                width={32}
+                height={32}
+              />
+              <span className="text-xl font-bold text-foreground">QRWolf</span>
+            </Link>
             <div className="hidden md:flex items-center gap-6">
               <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</a>
               <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
@@ -96,41 +94,151 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-16 px-4">
-        <div className="max-w-7xl mx-auto text-center mb-12">
-          <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
-            Free to use, no signup required
-          </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Create stunning{' '}
-            <span className="gradient-text">QR codes</span>
-            {' '}in seconds
+      {/* Hero Mast Section */}
+      <section className="relative hero-mast pt-16 min-h-[500px] flex items-center justify-center overflow-hidden">
+        {/* Dark overlay for better contrast */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-transparent to-background" />
+
+        {/* Logo with glow */}
+        <div className="relative z-10 flex flex-col items-center text-center px-4">
+          <Image
+            src="/QRWolf_Logo_Color.png"
+            alt="QRWolf Logo"
+            width={200}
+            height={225}
+            className="logo-glow mb-6"
+            priority
+          />
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+            QRWolf
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            The modern QR code generator for businesses and creators.
-            Customize colors, add logos, track scans, and more.
+          <p className="text-lg md:text-xl text-white/80">
+            QR codes with <span className="text-primary font-semibold">teeth</span>
           </p>
         </div>
+      </section>
 
-        {/* QR Generator - The Hero */}
+      {/* QR Generator Section */}
+      <section className="py-16 px-4">
+        <div className="max-w-7xl mx-auto text-center mb-8">
+          <Badge className="bg-primary/10 text-primary border-primary/20">
+            Free to use, no signup required
+          </Badge>
+        </div>
+
+        {/* QR Generator */}
         <div className="max-w-7xl mx-auto">
           <QRGenerator />
         </div>
       </section>
 
-      {/* Social Proof */}
+      {/* Stats Section */}
       <section className="py-12 border-t border-b border-border/50">
         <div className="max-w-7xl mx-auto px-4">
-          <p className="text-center text-sm text-muted-foreground mb-6">
-            Trusted by businesses worldwide
-          </p>
-          <div className="flex flex-wrap justify-center items-center gap-8 opacity-50">
-            {['Company A', 'Company B', 'Company C', 'Company D', 'Company E'].map((company) => (
-              <div key={company} className="text-lg font-bold text-muted-foreground">
-                {company}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              { value: '50K+', label: 'QR Codes Generated' },
+              { value: '99.9%', label: 'Uptime' },
+              { value: '120+', label: 'Countries Reached' },
+              { value: '1M+', label: 'Scans Tracked' },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center">
+                <div className="text-3xl md:text-4xl font-bold gradient-text mb-1">
+                  {stat.value}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {stat.label}
+                </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Dynamic vs Static Comparison */}
+      <section className="py-16 px-4">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-4">
+            Static vs Dynamic: <span className="gradient-text">What&apos;s the difference?</span>
+          </h2>
+          <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+            Static QR codes link directly to a URL. Dynamic QR codes route through us,
+            so you can change the destination anytime and track every scan.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Static Card */}
+            <Card className="p-6 glass">
+              <h3 className="text-lg font-semibold mb-4">Static QR Code</h3>
+              <ul className="space-y-3 mb-4">
+                <li className="flex items-center gap-2 text-sm">
+                  <svg className="w-4 h-4 text-green-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Free forever
+                </li>
+                <li className="flex items-center gap-2 text-sm">
+                  <svg className="w-4 h-4 text-green-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Direct link to destination
+                </li>
+                <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <svg className="w-4 h-4 text-red-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                  Cannot change after printing
+                </li>
+                <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <svg className="w-4 h-4 text-red-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                  No scan tracking
+                </li>
+              </ul>
+              <p className="text-xs text-muted-foreground border-t border-border/50 pt-4">
+                Best for: Personal use, one-time links
+              </p>
+            </Card>
+
+            {/* Dynamic Card - highlighted */}
+            <Card className="p-6 glass border-primary glow">
+              <div className="flex items-center gap-2 mb-4">
+                <h3 className="text-lg font-semibold">Dynamic QR Code</h3>
+                <Badge className="bg-primary/10 text-primary text-xs">Pro</Badge>
+              </div>
+              <ul className="space-y-3 mb-4">
+                <li className="flex items-center gap-2 text-sm">
+                  <svg className="w-4 h-4 text-green-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Edit destination anytime
+                </li>
+                <li className="flex items-center gap-2 text-sm">
+                  <svg className="w-4 h-4 text-green-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Track every scan
+                </li>
+                <li className="flex items-center gap-2 text-sm">
+                  <svg className="w-4 h-4 text-green-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Set expiration dates
+                </li>
+                <li className="flex items-center gap-2 text-sm">
+                  <svg className="w-4 h-4 text-green-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Password protection
+                </li>
+              </ul>
+              <p className="text-xs text-muted-foreground border-t border-border/50 pt-4">
+                Best for: Business, marketing campaigns, menus
+              </p>
+            </Card>
           </div>
         </div>
       </section>
@@ -143,7 +251,7 @@ export default function Home() {
               Everything you need to <span className="gradient-text">create & track</span>
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              From simple QR codes to enterprise analytics, QRForge has you covered.
+              From simple QR codes to enterprise analytics, QRWolf has you covered.
             </p>
           </div>
 
@@ -157,6 +265,131 @@ export default function Home() {
                 <p className="text-sm text-muted-foreground">{feature.description}</p>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Analytics Showcase */}
+      <section className="py-24 px-4 bg-secondary/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Mock Dashboard */}
+            <div className="order-2 lg:order-1">
+              <Card className="p-6 glass glow overflow-hidden">
+                <div className="flex items-center gap-2 mb-6">
+                  <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                  </svg>
+                  <span className="font-semibold">Scan Analytics</span>
+                </div>
+
+                {/* Metrics Grid */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="p-3 rounded-lg bg-secondary/50">
+                    <p className="text-xs text-muted-foreground">Total Scans</p>
+                    <p className="text-2xl font-bold">1,247</p>
+                    <p className="text-xs text-green-500">+23% this week</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-secondary/50">
+                    <p className="text-xs text-muted-foreground">Unique Visitors</p>
+                    <p className="text-2xl font-bold">892</p>
+                    <p className="text-xs text-green-500">+18% this week</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-secondary/50">
+                    <p className="text-xs text-muted-foreground">Top Location</p>
+                    <p className="text-lg font-semibold">United States</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-secondary/50">
+                    <p className="text-xs text-muted-foreground">Peak Time</p>
+                    <p className="text-lg font-semibold">2-4 PM</p>
+                  </div>
+                </div>
+
+                {/* Mini Chart */}
+                <div className="h-16 bg-secondary/30 rounded-lg flex items-end justify-around px-2 pb-2">
+                  {[40, 65, 45, 80, 60, 90, 75].map((h, i) => (
+                    <div key={i} className="w-6 bg-primary/60 rounded-t" style={{ height: `${h}%` }} />
+                  ))}
+                </div>
+              </Card>
+            </div>
+
+            {/* Right: Copy */}
+            <div className="order-1 lg:order-2">
+              <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+                Pro Feature
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                What if you knew <span className="gradient-text">exactly</span> when they scan?
+              </h2>
+              <p className="text-lg text-muted-foreground mb-8">
+                Stop guessing. See real-time data on who&apos;s scanning your QR codes,
+                where they&apos;re located, and when they&apos;re most active.
+              </p>
+
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-medium">Location data</p>
+                    <p className="text-sm text-muted-foreground">Country and city breakdowns</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+                      <line x1="12" y1="18" x2="12.01" y2="18" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-medium">Device insights</p>
+                    <p className="text-sm text-muted-foreground">Mobile, tablet, or desktop</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10" />
+                      <polyline points="12 6 12 12 16 14" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-medium">Time patterns</p>
+                    <p className="text-sm text-muted-foreground">Peak hours and days</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <svg className="w-4 h-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                      <polyline points="17 6 23 6 23 12" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-medium">Trend tracking</p>
+                    <p className="text-sm text-muted-foreground">Performance over time</p>
+                  </div>
+                </li>
+              </ul>
+
+              <Link href="/signup">
+                <Button size="lg" className="glow-hover">
+                  Get Analytics with Pro
+                  <svg className="ml-2 w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                  </svg>
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -226,7 +459,7 @@ export default function Home() {
             Ready to create your first QR code?
           </h2>
           <p className="text-muted-foreground mb-8">
-            Join thousands of businesses using QRForge to connect with their customers.
+            Join thousands of businesses using QRWolf to connect with their customers.
           </p>
           <Link href="/signup">
             <Button size="lg" className="glow-hover text-lg px-8">
@@ -240,31 +473,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border/50 py-12 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-gradient-to-br from-primary to-accent rounded flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
-                  <rect x="3" y="3" width="7" height="7" rx="1" />
-                  <rect x="14" y="3" width="7" height="7" rx="1" />
-                  <rect x="3" y="14" width="7" height="7" rx="1" />
-                </svg>
-              </div>
-              <span className="font-semibold">QRForge</span>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              &copy; {new Date().getFullYear()} QRForge. All rights reserved.
-            </p>
-            <div className="flex items-center gap-4">
-              <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Privacy</a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Terms</a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }
@@ -304,7 +513,7 @@ const FEATURES = [
   },
   {
     title: 'Multiple Formats',
-    description: 'Download in PNG, SVG, or PDF format for any use case from web to print.',
+    description: 'Download in PNG or SVG format for any use case from web to print.',
     icon: (
       <svg className="w-6 h-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -432,14 +641,14 @@ const FAQS = [
   },
   {
     question: 'What file formats can I download?',
-    answer: 'Free users can download PNG files. Pro users get access to SVG and PDF formats, which are perfect for high-quality printing.',
+    answer: 'Free users can download PNG files. Pro users get access to SVG format, which is perfect for high-quality printing and scalable graphics.',
   },
   {
     question: 'How does scan tracking work?',
     answer: 'When someone scans your dynamic QR code, we record anonymous data like location (country/city), device type, and time. You can view this data in your analytics dashboard.',
   },
   {
-    question: 'Can I use QRForge for commercial purposes?',
-    answer: 'Absolutely! QRForge is designed for businesses. All plans, including Free, allow commercial use of generated QR codes.',
+    question: 'Can I use QRWolf for commercial purposes?',
+    answer: 'Absolutely! QRWolf is designed for businesses. All plans, including Free, allow commercial use of generated QR codes.',
   },
 ];

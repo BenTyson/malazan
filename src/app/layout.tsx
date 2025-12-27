@@ -18,8 +18,8 @@ const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://qrforge.com';
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "QRForge - Free QR Code Generator with Analytics & Tracking",
-    template: "%s | QRForge",
+    default: "QRWolf - Free QR Code Generator with Analytics & Tracking",
+    template: "%s | QRWolf",
   },
   description: "Create professional QR codes in seconds. Free QR code generator with custom colors, logos, dynamic URLs, and real-time scan analytics. Perfect for restaurants, marketing, business cards, and events.",
   keywords: [
@@ -39,19 +39,19 @@ export const metadata: Metadata = {
     "custom qr code",
     "trackable qr code",
   ],
-  authors: [{ name: "QRForge" }],
-  creator: "QRForge",
-  publisher: "QRForge",
+  authors: [{ name: "QRWolf" }],
+  creator: "QRWolf",
+  publisher: "QRWolf",
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
   openGraph: {
-    title: "QRForge - Free QR Code Generator with Analytics",
+    title: "QRWolf - Free QR Code Generator with Analytics",
     description: "Create professional QR codes in seconds. Custom colors, logos, dynamic URLs, and real-time scan analytics.",
     url: siteUrl,
-    siteName: "QRForge",
+    siteName: "QRWolf",
     type: "website",
     locale: "en_US",
     images: [
@@ -59,13 +59,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "QRForge - Professional QR Code Generator",
+        alt: "QRWolf - Professional QR Code Generator",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "QRForge - Free QR Code Generator",
+    title: "QRWolf - Free QR Code Generator",
     description: "Create professional QR codes with custom colors, logos, and real-time analytics.",
     images: ["/og-image.png"],
   },

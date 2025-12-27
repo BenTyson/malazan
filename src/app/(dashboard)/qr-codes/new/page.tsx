@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { QRPreview } from '@/components/qr/QRPreview';
 import { QRTypeSelector } from '@/components/qr/QRTypeSelector';
@@ -13,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
+import { PLANS } from '@/lib/stripe/plans';
 
 const DEFAULT_STYLE: QRStyleOptions = {
   foregroundColor: '#000000',
@@ -34,6 +36,50 @@ export default function NewQRCodePage() {
   const [expiresAt, setExpiresAt] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [isPasswordProtected, setIsPasswordProtected] = useState(false);
+
+  // Tier and limits
+  const [tier, setTier] = useState<'free' | 'pro' | 'business'>('free');
+  const [dynamicCount, setDynamicCount] = useState(0);
+  const [isLoadingTier, setIsLoadingTier] = useState(true);
+
+  // Calculate limits
+  const dynamicLimit = PLANS[tier].dynamicQRLimit;
+  const canCreateDynamic = tier !== 'free';
+  const hasReachedLimit = dynamicLimit !== -1 && dynamicCount >= dynamicLimit;
+
+  useEffect(() => {
+    const fetchTierAndCount = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+
+      // Fetch profile for tier
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('subscription_tier')
+        .eq('id', user.id)
+        .single();
+
+      const userTier = (profile?.subscription_tier || 'free') as 'free' | 'pro' | 'business';
+      setTier(userTier);
+
+      // Count existing dynamic QR codes
+      const { count } = await supabase
+        .from('qr_codes')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('type', 'dynamic');
+
+      setDynamicCount(count || 0);
+      setIsLoadingTier(false);
+    };
+
+    fetchTierAndCount();
+  }, [router]);
 
   // Form state
   const [urlValue, setUrlValue] = useState('');
@@ -142,6 +188,18 @@ export default function NewQRCodePage() {
       return;
     }
 
+    // Validate dynamic QR permissions
+    if (isDynamic) {
+      if (!canCreateDynamic) {
+        setError('Dynamic QR codes require a Pro or Business subscription');
+        return;
+      }
+      if (hasReachedLimit) {
+        setError(`You've reached your limit of ${dynamicLimit} dynamic QR codes. Upgrade to Business for unlimited.`);
+        return;
+      }
+    }
+
     setIsSaving(true);
     setError(null);
 
@@ -152,6 +210,38 @@ export default function NewQRCodePage() {
       if (!user) {
         router.push('/login');
         return;
+      }
+
+      // Double-check limits server-side for dynamic QR codes
+      if (isDynamic) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('subscription_tier')
+          .eq('id', user.id)
+          .single();
+
+        const currentTier = (profile?.subscription_tier || 'free') as 'free' | 'pro' | 'business';
+
+        if (currentTier === 'free') {
+          setError('Dynamic QR codes require a Pro or Business subscription');
+          setIsSaving(false);
+          return;
+        }
+
+        const limit = PLANS[currentTier].dynamicQRLimit;
+        if (limit !== -1) {
+          const { count } = await supabase
+            .from('qr_codes')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+            .eq('type', 'dynamic');
+
+          if ((count || 0) >= limit) {
+            setError(`You've reached your limit of ${limit} dynamic QR codes.`);
+            setIsSaving(false);
+            return;
+          }
+        }
       }
 
       // Generate short code for dynamic QR codes
@@ -253,11 +343,15 @@ export default function NewQRCodePage() {
                 </Button>
                 <Button
                   onClick={handleDownloadSVG}
-                  disabled={!content}
+                  disabled={!content || tier === 'free'}
                   variant="outline"
+                  title={tier === 'free' ? 'Upgrade to Pro for SVG downloads' : undefined}
                 >
                   <DownloadIcon className="w-4 h-4 mr-2" />
                   SVG
+                  {tier === 'free' && (
+                    <span className="ml-1.5 text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded">Pro</span>
+                  )}
                 </Button>
               </div>
             </div>
@@ -286,6 +380,15 @@ export default function NewQRCodePage() {
                 <p className="text-sm text-muted-foreground">
                   Edit destination anytime without reprinting
                 </p>
+                {/* Show limit info for paid users */}
+                {canCreateDynamic && dynamicLimit !== -1 && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {dynamicCount} / {dynamicLimit} used
+                  </p>
+                )}
+                {canCreateDynamic && dynamicLimit === -1 && (
+                  <p className="text-xs text-primary mt-1">Unlimited</p>
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
@@ -294,9 +397,33 @@ export default function NewQRCodePage() {
                 <Switch
                   checked={isDynamic}
                   onCheckedChange={setIsDynamic}
+                  disabled={isLoadingTier || !canCreateDynamic || hasReachedLimit}
                 />
               </div>
             </div>
+            {/* Upgrade prompt for free users */}
+            {!isLoadingTier && !canCreateDynamic && (
+              <div className="mt-4 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                <p className="text-sm text-muted-foreground">
+                  Dynamic QR codes require a Pro subscription.{' '}
+                  <Link href="/settings" className="text-primary hover:underline">
+                    Upgrade now
+                  </Link>
+                </p>
+              </div>
+            )}
+            {/* Limit reached message for Pro users */}
+            {!isLoadingTier && canCreateDynamic && hasReachedLimit && (
+              <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                <p className="text-sm text-muted-foreground">
+                  You&apos;ve reached your limit of {dynamicLimit} dynamic QR codes.{' '}
+                  <Link href="/settings" className="text-primary hover:underline">
+                    Upgrade to Business
+                  </Link>{' '}
+                  for unlimited.
+                </p>
+              </div>
+            )}
           </Card>
 
           {/* Expiration Date (Dynamic QR codes only) */}

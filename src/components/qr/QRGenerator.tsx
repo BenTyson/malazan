@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import Link from 'next/link';
 import { QRPreview } from './QRPreview';
 import { QRTypeSelector } from './QRTypeSelector';
 import { QRStyleEditor } from './QRStyleEditor';
-import { generateQRDataURL, generateQRSVG, downloadQRPNG, downloadQRSVG } from '@/lib/qr/generator';
+import { generateQRDataURL, downloadQRPNG } from '@/lib/qr/generator';
 import type { QRContent, QRContentType, QRStyleOptions, DEFAULT_STYLE } from '@/lib/qr/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -139,19 +140,6 @@ export function QRGenerator() {
     }
   };
 
-  const handleDownloadSVG = async () => {
-    if (!content) return;
-    setIsDownloading(true);
-    try {
-      const svg = await generateQRSVG(content, style);
-      downloadQRSVG(svg, 'qrforge-code');
-    } catch (error) {
-      console.error('Download failed:', error);
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
   return (
     <div className="w-full max-w-5xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -188,19 +176,20 @@ export function QRGenerator() {
                 </>
               )}
             </Button>
-            <Button
-              onClick={handleDownloadSVG}
-              disabled={!content || isDownloading}
-              variant="outline"
-              className="border-primary/50 hover:bg-primary/10"
-            >
-              <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              Download SVG
-            </Button>
+            <Link href="/signup">
+              <Button
+                variant="outline"
+                className="border-primary/50 hover:bg-primary/10"
+              >
+                <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                  <path d="M2 17l10 5 10-5" />
+                  <path d="M2 12l10 5 10-5" />
+                </svg>
+                SVG
+                <span className="ml-1.5 text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded">Pro</span>
+              </Button>
+            </Link>
           </div>
         </div>
 

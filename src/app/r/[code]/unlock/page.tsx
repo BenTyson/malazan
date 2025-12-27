@@ -85,7 +85,7 @@ export default function UnlockPage() {
           <p className="text-xs text-muted-foreground">
             Protected by{' '}
             <a href="/" className="text-primary hover:underline">
-              QRForge
+              QRWolf
             </a>
           </p>
         </div>

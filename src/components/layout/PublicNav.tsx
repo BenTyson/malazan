@@ -1,0 +1,40 @@
+import Link from 'next/link';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+
+interface PublicNavProps {
+  showAuthButtons?: boolean;
+}
+
+export function PublicNav({ showAuthButtons = true }: PublicNavProps) {
+  return (
+    <nav className="fixed top-0 left-0 right-0 z-50 glass">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <Link href="/" className="flex items-center gap-2">
+            <Image
+              src="/QRWolf_Logo_Icon.png"
+              alt="QRWolf"
+              width={32}
+              height={32}
+            />
+            <span className="text-xl font-bold text-foreground">QRWolf</span>
+          </Link>
+          {showAuthButtons && (
+            <div className="hidden md:flex items-center gap-6">
+              <a href="/#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</a>
+              <a href="/#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
+              <a href="/#faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
+              <Link href="/login">
+                <Button variant="outline" size="sm" className="border-primary/50">Sign In</Button>
+              </Link>
+              <Link href="/signup">
+                <Button size="sm" className="glow-hover">Get Started</Button>
+              </Link>
+            </div>
+          )}
+        </div>
+      </div>
+    </nav>
+  );
+}

@@ -72,7 +72,7 @@ export function PricingSection({ isAuthenticated = false, currentTier = 'free' }
             </div>
           </div>
           <ul className="space-y-3 mb-8">
-            {['Unlimited static QR codes', 'Basic colors', 'PNG downloads', 'QRForge watermark'].map((feature) => (
+            {['Unlimited static QR codes', '100 scans/month', 'Custom colors', 'PNG downloads'].map((feature) => (
               <li key={feature} className="flex items-center gap-2 text-sm">
                 <CheckIcon />
                 {feature}
@@ -105,10 +105,11 @@ export function PricingSection({ isAuthenticated = false, currentTier = 'free' }
             {[
               'Everything in Free',
               '50 dynamic QR codes',
+              '10,000 scans/month',
               'Scan analytics',
-              'Custom colors & logos',
-              'SVG/PDF downloads',
-              'No watermark',
+              'SVG downloads',
+              'QR expiration dates',
+              'Password protection',
             ].map((feature) => (
               <li key={feature} className="flex items-center gap-2 text-sm">
                 <CheckIcon />
@@ -138,10 +139,8 @@ export function PricingSection({ isAuthenticated = false, currentTier = 'free' }
             {[
               'Everything in Pro',
               'Unlimited dynamic QR codes',
-              'API access',
-              'Bulk generation',
-              'Team members (3)',
-              'White-label option',
+              'Unlimited scans',
+              'Priority support',
             ].map((feature) => (
               <li key={feature} className="flex items-center gap-2 text-sm">
                 <CheckIcon />
