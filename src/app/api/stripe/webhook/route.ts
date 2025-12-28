@@ -82,6 +82,23 @@ export async function POST(request: Request) {
         await handlePaymentFailed(invoice);
         break;
       }
+
+      case 'invoice.payment_succeeded': {
+        // Cast to access properties that may not be in the type definition
+        const invoiceData = event.data.object as unknown as {
+          subscription?: string;
+          customer?: string;
+          billing_reason?: string;
+        };
+        // Only handle subscription creation invoices (for custom checkout flow)
+        if (invoiceData.subscription && invoiceData.billing_reason === 'subscription_create') {
+          await handleSubscriptionPaymentSucceeded(
+            invoiceData.subscription,
+            invoiceData.customer!
+          );
+        }
+        break;
+      }
     }
 
     // Mark event as processed after successful handling
@@ -250,4 +267,39 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
   }
 
   console.log(`Payment failed for user ${profile.id}`);
+}
+
+async function handleSubscriptionPaymentSucceeded(subscriptionId: string, customerId: string) {
+  if (!subscriptionId || !customerId) {
+    throw new Error('Missing subscription or customer ID');
+  }
+
+  // Fetch subscription to get metadata (contains plan and user ID)
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+  const userId = subscription.metadata?.supabase_user_id;
+  const plan = subscription.metadata?.plan as 'pro' | 'business';
+
+  if (!userId || !plan) {
+    console.error('Missing metadata in subscription:', {
+      subscriptionId,
+      metadata: subscription.metadata,
+    });
+    throw new Error('Missing required metadata in subscription');
+  }
+
+  const { error } = await supabaseAdmin
+    .from('profiles')
+    .update({
+      subscription_tier: plan,
+      subscription_status: 'active',
+      stripe_customer_id: customerId,
+    })
+    .eq('id', userId);
+
+  if (error) {
+    console.error('Failed to update profile:', error);
+    throw error;
+  }
+
+  console.log(`Subscription activated via payment for user ${userId}: ${plan}`);
 }

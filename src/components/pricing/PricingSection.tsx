@@ -145,7 +145,6 @@ export function PricingSection({ isAuthenticated = false, currentTier = 'free' }
               'Unlimited scans',
               'API access',
               'Bulk generation (CSV)',
-              'Priority support',
             ].map((feature) => (
               <li key={feature} className="flex items-center gap-2 text-sm">
                 <CheckIcon />

@@ -37,7 +37,6 @@ const TIER_INFO: Record<Tier, { name: string; color: string; features: string[] 
       'REST API access',
       'Bulk CSV generation',
       'Webhook integrations',
-      'Priority support',
     ],
   },
 };

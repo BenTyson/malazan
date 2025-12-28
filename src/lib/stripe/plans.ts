@@ -52,7 +52,6 @@ export const PLANS = {
       'API access',
       'Team members',
       'Custom domains',
-      'Priority support',
     ],
   },
 };

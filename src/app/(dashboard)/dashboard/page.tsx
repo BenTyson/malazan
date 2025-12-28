@@ -89,21 +89,13 @@ export default async function DashboardPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Welcome Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">
-            Welcome back{user?.email ? `, ${user.email.split('@')[0]}` : ''}
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Here&apos;s what&apos;s happening with your QR codes
-          </p>
-        </div>
-        <Link href="/qr-codes/new">
-          <Button size="lg" className="hidden sm:flex gap-2">
-            <PlusIcon className="w-5 h-5" />
-            New QR Code
-          </Button>
-        </Link>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold">
+          Welcome back{user?.email ? `, ${user.email.split('@')[0]}` : ''}
+        </h1>
+        <p className="text-muted-foreground mt-1">
+          Here&apos;s what&apos;s happening with your QR codes
+        </p>
       </div>
 
       {/* Stats Grid - More visual variety */}

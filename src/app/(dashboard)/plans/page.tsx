@@ -56,7 +56,6 @@ const PLANS: Record<Tier, PlanInfo> = {
       'Password protection',
       'Expiration & scheduling',
       'Branded landing pages',
-      'Priority support',
     ],
     limitations: [],
   },
@@ -72,7 +71,6 @@ const PLANS: Record<Tier, PlanInfo> = {
       'REST API access',
       'Bulk CSV generation',
       'Webhook integrations',
-      'Dedicated support',
     ],
     limitations: [],
   },
@@ -83,7 +81,6 @@ export default function PlansPage() {
   const [interval, setInterval] = useState<Interval>('monthly');
   const [currentTier, setCurrentTier] = useState<Tier>('free');
   const [loading, setLoading] = useState(true);
-  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCurrentTier = async () => {
@@ -107,35 +104,14 @@ export default function PlansPage() {
     fetchCurrentTier();
   }, []);
 
-  const handleSelectPlan = async (plan: Tier) => {
+  const handleSelectPlan = (plan: Tier) => {
     if (plan === 'free' || plan === currentTier) return;
 
-    setCheckoutLoading(plan);
-
-    try {
-      const response = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan, interval }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create checkout session');
-      }
-
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch (error) {
-      console.error('Checkout error:', error);
-      setCheckoutLoading(null);
-    }
+    // Navigate to custom checkout page
+    router.push(`/checkout/${plan}?interval=${interval}`);
   };
 
   const getButtonText = (plan: Tier) => {
-    if (checkoutLoading === plan) return 'Loading...';
     if (plan === currentTier) return 'Current Plan';
     if (plan === 'free') return 'Free Forever';
 
@@ -289,7 +265,7 @@ export default function PlansPage() {
               <Button
                 className={`w-full ${plan.popular && !isCurrentPlan ? 'glow' : ''}`}
                 variant={getButtonVariant(key)}
-                disabled={isCurrentPlan || key === 'free' || checkoutLoading !== null}
+                disabled={isCurrentPlan || key === 'free'}
                 onClick={() => handleSelectPlan(key)}
               >
                 {getButtonText(key)}
