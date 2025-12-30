@@ -6,9 +6,8 @@ import { PublicNav } from '@/components/layout/PublicNav';
 import { Footer } from '@/components/layout/Footer';
 import { TableOfContents, RelatedArticles, MDXContent } from '@/components/content';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { formatDate, getReadingTime } from '@/lib/content/utils';
-import { ArrowLeft, Calendar, Clock, User } from 'lucide-react';
+import { formatDate, getReadingTime, BLOG_CATEGORIES } from '@/lib/content/utils';
+import { Calendar, Clock, User, ChevronRight, PenLine } from 'lucide-react';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -109,52 +108,92 @@ export default async function BlogPostPage({ params }: PageProps) {
     .filter(p => !p.draft && p.slug !== post.slug && p.category === post.category)
     .slice(0, 3);
 
+  const categoryInfo = BLOG_CATEGORIES.find(c => c.slug === post.category);
+
   return (
     <>
       <ArticleJsonLd post={post} />
       <PublicNav showAuthButtons={true} />
-      <main className="min-h-screen pt-24 pb-16">
-        <div className="max-w-6xl mx-auto px-4">
-          {/* Back link */}
-          <Link href="/blog">
-            <Button variant="ghost" size="sm" className="mb-8 -ml-2">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Blog
-            </Button>
-          </Link>
+      <main className="min-h-screen pt-24 pb-16 relative overflow-hidden">
+        {/* Background decorations */}
+        <div className="absolute inset-0 pointer-events-none">
+          {/* Floating orbs */}
+          <div className="absolute top-32 left-20 w-80 h-80 rounded-full bg-primary/15 blur-[120px]" />
+          <div className="absolute top-80 right-10 w-72 h-72 rounded-full bg-cyan-500/10 blur-[150px]" />
+          <div className="absolute bottom-40 left-1/4 w-64 h-64 rounded-full bg-primary/10 blur-[100px]" />
+          {/* Dot pattern */}
+          <div
+            className="absolute inset-0 opacity-20"
+            style={{
+              backgroundImage: 'radial-gradient(rgba(20, 184, 166, 0.15) 1px, transparent 1px)',
+              backgroundSize: '32px 32px',
+            }}
+          />
+        </div>
+
+        <div className="max-w-6xl mx-auto px-4 relative">
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-2 text-sm text-slate-400 mb-8 animate-fade-in">
+            <Link href="/blog" className="hover:text-primary transition-colors flex items-center gap-1">
+              <PenLine className="w-4 h-4" />
+              Blog
+            </Link>
+            <ChevronRight className="w-4 h-4 text-slate-600" />
+            <Link
+              href={`/blog/category/${post.category}`}
+              className="hover:text-primary transition-colors capitalize"
+            >
+              {categoryInfo?.label || post.category.replace('-', ' ')}
+            </Link>
+            <ChevronRight className="w-4 h-4 text-slate-600" />
+            <span className="text-slate-500 truncate max-w-[200px]">{post.title}</span>
+          </nav>
 
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-12">
             {/* Main content */}
             <article>
               {/* Header */}
-              <header className="mb-8">
-                <Badge variant="secondary" className="mb-4 capitalize">
-                  {post.category.replace('-', ' ')}
-                </Badge>
-                <h1 className="text-3xl md:text-4xl font-bold mb-4">
+              <header className="mb-10 animate-fade-in" style={{ animationDelay: '100ms' }}>
+                <Link href={`/blog/category/${post.category}`}>
+                  <Badge className="mb-4 capitalize bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
+                    {categoryInfo?.label || post.category.replace('-', ' ')}
+                  </Badge>
+                </Link>
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-5 tracking-tight leading-tight">
                   {post.title}
                 </h1>
-                <p className="text-lg text-muted-foreground mb-6">
+                <p className="text-lg md:text-xl text-slate-400 mb-6 leading-relaxed">
                   {post.description}
                 </p>
-                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                  <span className="flex items-center gap-1.5">
-                    <User className="w-4 h-4" />
-                    {post.author}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4" />
-                    {formatDate(post.date)}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Clock className="w-4 h-4" />
-                    {getReadingTime(post.metadata.wordCount)}
-                  </span>
+
+                {/* Author card */}
+                <div className="flex items-center gap-4 p-4 rounded-xl bg-slate-800/50 backdrop-blur-sm border border-slate-700/50">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-cyan-500/20 flex items-center justify-center">
+                    <User className="w-6 h-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-white">{post.author}</p>
+                    <div className="flex flex-wrap items-center gap-3 text-sm text-slate-400">
+                      <span className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5" />
+                        {formatDate(post.date)}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5" />
+                        {getReadingTime(post.metadata.wordCount)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
+
                 {post.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-4">
+                  <div className="flex flex-wrap gap-2 mt-5">
                     {post.tags.map(tag => (
-                      <Badge key={tag} variant="outline" className="text-xs">
+                      <Badge
+                        key={tag}
+                        variant="outline"
+                        className="text-xs border-slate-600/50 text-slate-400 hover:border-primary/30 hover:text-primary transition-colors"
+                      >
                         {tag}
                       </Badge>
                     ))}
@@ -163,7 +202,10 @@ export default async function BlogPostPage({ params }: PageProps) {
               </header>
 
               {/* Content */}
-              <div className="prose prose-invert max-w-none">
+              <div
+                className="prose prose-invert max-w-none prose-headings:scroll-mt-24 prose-a:text-primary prose-a:no-underline hover:prose-a:underline animate-fade-in"
+                style={{ animationDelay: '200ms' }}
+              >
                 <MDXContent code={post.content} />
               </div>
 

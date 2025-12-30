@@ -2,7 +2,7 @@
 
 > **Live URL**: https://qrwolf.com
 > **Status**: LAUNCHED (December 28, 2025)
-> **Last Updated**: December 30, 2025 (Dynamic QR Type Upgrades)
+> **Last Updated**: December 30, 2025 (Blog & Learn V2 UI Polish)
 > **Admin Dashboard**: https://qrwolf.com/admin
 
 See also: `docs/SESSION-START.md` for full project context
@@ -199,6 +199,18 @@ All landing pages now feature:
 - [x] IP whitelist support for API keys
 - [x] API key expiration support
 
+### Blog & Learn Knowledge Base
+- [ ] `/learn` - Hub page loads with category cards
+- [ ] `/learn/[slug]` - Individual article with TOC sidebar
+- [ ] `/learn/category/[category]` - Category listing pages
+- [ ] `/blog` - Blog listing with featured posts
+- [ ] `/blog/[slug]` - Individual blog post with author card
+- [ ] `/blog/category/[category]` - Category-filtered posts
+- [ ] Table of contents scroll-spy highlights current section
+- [ ] Related articles show at bottom of posts
+- [ ] MDX components render correctly (callouts, code blocks, tables)
+- [ ] V2 UI polish: Floating orbs, staggered animations, glassmorphism
+
 ---
 
 ## 5. SEO & Marketing
@@ -270,6 +282,17 @@ All landing pages now feature:
 - [x] SocialLinksEditor reusable component for Business, Links, Social types
 - [x] All landing pages redesigned with modern glassmorphism UI
 - [x] Consistent design language across all QR types
+
+**Blog & Learn V2 UI Polish (December 30, 2025):**
+- [x] All 11 blog/learn pages and components upgraded to V2 design
+- [x] ArticleCard with shine effect, gradient overlay, scale/translate hover
+- [x] Hub pages with floating orbs, dot patterns, staggered animations
+- [x] TableOfContents with progress line, indicator dots, glass-heavy styling
+- [x] LearnSidebar with category icons, vertical progress line, active badges
+- [x] Article pages with breadcrumbs, floating backgrounds, enhanced headers
+- [x] MDX components with enhanced typography, anchor links, styled elements
+- [x] Callout component with 5 variants (info, warning, tip, error, note)
+- [x] Category pages with consistent V2 styling
 
 ---
 

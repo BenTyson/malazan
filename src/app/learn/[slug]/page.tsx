@@ -6,9 +6,8 @@ import { PublicNav } from '@/components/layout/PublicNav';
 import { Footer } from '@/components/layout/Footer';
 import { TableOfContents, LearnSidebar, RelatedArticles, MDXContent } from '@/components/content';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { getReadingTime, LEARN_CATEGORIES } from '@/lib/content/utils';
-import { ArrowLeft, Clock } from 'lucide-react';
+import { Clock, ChevronRight, BookOpen } from 'lucide-react';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -121,9 +120,25 @@ export default async function LearnArticlePage({ params }: PageProps) {
     <>
       <ArticleJsonLd article={article} />
       <PublicNav showAuthButtons={true} />
-      <main className="min-h-screen pt-24 pb-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr_250px] gap-8">
+      <main className="min-h-screen pt-24 pb-16 relative overflow-hidden">
+        {/* Background decorations */}
+        <div className="absolute inset-0 pointer-events-none">
+          {/* Floating orbs */}
+          <div className="absolute top-40 right-20 w-72 h-72 rounded-full bg-primary/15 blur-[120px]" />
+          <div className="absolute top-96 left-10 w-64 h-64 rounded-full bg-cyan-500/10 blur-[150px]" />
+          <div className="absolute bottom-64 right-1/3 w-80 h-80 rounded-full bg-primary/10 blur-[100px]" />
+          {/* Dot pattern */}
+          <div
+            className="absolute inset-0 opacity-20"
+            style={{
+              backgroundImage: 'radial-gradient(rgba(20, 184, 166, 0.15) 1px, transparent 1px)',
+              backgroundSize: '32px 32px',
+            }}
+          />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 relative">
+          <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_250px] gap-8">
             {/* Left Sidebar - Category Navigation */}
             <aside className="hidden lg:block">
               <LearnSidebar articles={allArticles} />
@@ -131,37 +146,50 @@ export default async function LearnArticlePage({ params }: PageProps) {
 
             {/* Main content */}
             <article className="min-w-0">
-              {/* Back link */}
-              <Link href="/learn">
-                <Button variant="ghost" size="sm" className="mb-6 -ml-2">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Learn
-                </Button>
-              </Link>
+              {/* Breadcrumb */}
+              <nav className="flex items-center gap-2 text-sm text-slate-400 mb-6 animate-fade-in">
+                <Link href="/learn" className="hover:text-primary transition-colors flex items-center gap-1">
+                  <BookOpen className="w-4 h-4" />
+                  Learn
+                </Link>
+                <ChevronRight className="w-4 h-4 text-slate-600" />
+                <Link
+                  href={`/learn/category/${article.category}`}
+                  className="hover:text-primary transition-colors capitalize"
+                >
+                  {categoryInfo?.label || article.category.replace('-', ' ')}
+                </Link>
+                <ChevronRight className="w-4 h-4 text-slate-600" />
+                <span className="text-slate-500 truncate max-w-[200px]">{article.title}</span>
+              </nav>
 
               {/* Header */}
-              <header className="mb-8">
-                <div className="flex items-center gap-2 mb-4">
+              <header className="mb-10 animate-fade-in" style={{ animationDelay: '100ms' }}>
+                <div className="flex items-center gap-3 mb-4">
                   <Link href={`/learn/category/${article.category}`}>
-                    <Badge variant="secondary" className="capitalize hover:bg-secondary/80">
+                    <Badge className="capitalize bg-primary/10 text-primary border-primary/20 hover:bg-primary/20">
                       {categoryInfo?.label || article.category.replace('-', ' ')}
                     </Badge>
                   </Link>
-                  <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1.5 text-sm text-slate-400">
                     <Clock className="w-4 h-4" />
                     {getReadingTime(article.metadata.wordCount)}
                   </span>
                 </div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-4">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-5 tracking-tight leading-tight">
                   {article.title}
                 </h1>
-                <p className="text-lg text-muted-foreground">
+                <p className="text-lg md:text-xl text-slate-400 leading-relaxed">
                   {article.description}
                 </p>
                 {article.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-4">
+                  <div className="flex flex-wrap gap-2 mt-5">
                     {article.tags.map(tag => (
-                      <Badge key={tag} variant="outline" className="text-xs">
+                      <Badge
+                        key={tag}
+                        variant="outline"
+                        className="text-xs border-slate-600/50 text-slate-400 hover:border-primary/30 hover:text-primary transition-colors"
+                      >
                         {tag}
                       </Badge>
                     ))}
@@ -170,7 +198,10 @@ export default async function LearnArticlePage({ params }: PageProps) {
               </header>
 
               {/* Content */}
-              <div className="prose prose-invert max-w-none">
+              <div
+                className="prose prose-invert max-w-none prose-headings:scroll-mt-24 prose-a:text-primary prose-a:no-underline hover:prose-a:underline animate-fade-in"
+                style={{ animationDelay: '200ms' }}
+              >
                 <MDXContent code={article.content} />
               </div>
 

@@ -2,41 +2,80 @@ import { Callout } from './Callout';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { Link as LinkIcon } from 'lucide-react';
 
 export const mdxComponents = {
   // Override default elements
-  h1: ({ children, className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h1 className={cn('text-3xl font-bold mt-8 mb-4 gradient-text', className)} {...props}>
+  h1: ({ children, className, id, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+    <h1
+      id={id}
+      className={cn('text-3xl font-bold mt-8 mb-4 gradient-text group', className)}
+      {...props}
+    >
       {children}
     </h1>
   ),
-  h2: ({ children, className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h2 className={cn('text-2xl font-semibold mt-10 mb-4 scroll-mt-24', className)} {...props}>
+  h2: ({ children, className, id, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+    <h2
+      id={id}
+      className={cn('text-2xl font-semibold mt-12 mb-4 scroll-mt-24 group flex items-center gap-3', className)}
+      {...props}
+    >
+      <span className="w-1 h-6 bg-gradient-to-b from-primary to-cyan-500 rounded-full" />
       {children}
+      {id && (
+        <a
+          href={`#${id}`}
+          className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-primary"
+          aria-label={`Link to ${children}`}
+        >
+          <LinkIcon className="w-4 h-4" />
+        </a>
+      )}
     </h2>
   ),
-  h3: ({ children, className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h3 className={cn('text-xl font-semibold mt-8 mb-3 scroll-mt-24', className)} {...props}>
+  h3: ({ children, className, id, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+    <h3
+      id={id}
+      className={cn('text-xl font-semibold mt-10 mb-3 scroll-mt-24 text-slate-200 group', className)}
+      {...props}
+    >
       {children}
+      {id && (
+        <a
+          href={`#${id}`}
+          className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-primary ml-2"
+          aria-label={`Link to ${children}`}
+        >
+          <LinkIcon className="w-3.5 h-3.5 inline" />
+        </a>
+      )}
     </h3>
   ),
   h4: ({ children, className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-    <h4 className={cn('text-lg font-semibold mt-6 mb-2', className)} {...props}>
+    <h4 className={cn('text-lg font-semibold mt-8 mb-2 text-slate-300', className)} {...props}>
       {children}
     </h4>
   ),
   p: ({ children, className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => (
-    <p className={cn('text-muted-foreground leading-relaxed mb-4', className)} {...props}>
+    <p className={cn('text-slate-400 leading-relaxed mb-5', className)} {...props}>
       {children}
     </p>
   ),
   a: ({ href, children, className, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
     const isExternal = href?.startsWith('http');
+    const linkClass = cn(
+      'text-primary font-medium transition-all',
+      'hover:text-cyan-400',
+      'border-b border-primary/30 hover:border-primary',
+      className
+    );
+
     if (isExternal) {
       return (
         <a
           href={href}
-          className={cn('text-primary hover:underline', className)}
+          className={linkClass}
           target="_blank"
           rel="noopener noreferrer"
           {...props}
@@ -46,37 +85,51 @@ export const mdxComponents = {
       );
     }
     return (
-      <Link href={href || '#'} className={cn('text-primary hover:underline', className)} {...props}>
+      <Link href={href || '#'} className={linkClass} {...props}>
         {children}
       </Link>
     );
   },
   ul: ({ children, className, ...props }: React.HTMLAttributes<HTMLUListElement>) => (
-    <ul className={cn('list-disc pl-6 mb-4 space-y-2 text-muted-foreground', className)} {...props}>
+    <ul className={cn('pl-6 mb-5 space-y-2 text-slate-400', className)} {...props}>
       {children}
     </ul>
   ),
   ol: ({ children, className, ...props }: React.HTMLAttributes<HTMLOListElement>) => (
-    <ol className={cn('list-decimal pl-6 mb-4 space-y-2 text-muted-foreground', className)} {...props}>
+    <ol className={cn('pl-6 mb-5 space-y-2 text-slate-400 list-decimal', className)} {...props}>
       {children}
     </ol>
   ),
   li: ({ children, className, ...props }: React.HTMLAttributes<HTMLLIElement>) => (
-    <li className={cn('', className)} {...props}>
+    <li className={cn('relative pl-2', className)} {...props}>
+      <span className="absolute -left-4 top-2.5 w-1.5 h-1.5 rounded-full bg-primary/60" />
       {children}
     </li>
   ),
   blockquote: ({ children, className, ...props }: React.HTMLAttributes<HTMLQuoteElement>) => (
     <blockquote
-      className={cn('border-l-4 border-primary/50 pl-4 my-6 italic text-muted-foreground', className)}
+      className={cn(
+        'relative my-6 pl-6 py-4 pr-4',
+        'border-l-2 border-primary',
+        'bg-slate-800/50 backdrop-blur-sm rounded-r-xl',
+        'italic text-slate-300',
+        className
+      )}
       {...props}
     >
+      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary to-cyan-500 rounded-full" />
       {children}
     </blockquote>
   ),
   code: ({ children, className, ...props }: React.HTMLAttributes<HTMLElement>) => (
     <code
-      className={cn('px-1.5 py-0.5 rounded bg-secondary text-sm font-mono', className)}
+      className={cn(
+        'px-1.5 py-0.5 rounded-md',
+        'bg-slate-700/50 text-cyan-400',
+        'text-sm font-mono',
+        'border border-slate-600/30',
+        className
+      )}
       {...props}
     >
       {children}
@@ -84,7 +137,13 @@ export const mdxComponents = {
   ),
   pre: ({ children, className, ...props }: React.HTMLAttributes<HTMLPreElement>) => (
     <pre
-      className={cn('rounded-xl p-4 my-6 overflow-x-auto bg-[#0d1117] text-sm', className)}
+      className={cn(
+        'rounded-2xl p-5 my-6 overflow-x-auto',
+        'bg-slate-900/80 backdrop-blur-sm',
+        'border border-slate-700/50',
+        'text-sm font-mono',
+        className
+      )}
       {...props}
     >
       {children}
@@ -93,39 +152,66 @@ export const mdxComponents = {
   img: ({ src, alt, ...props }: React.ImgHTMLAttributes<HTMLImageElement>) => {
     if (typeof src !== 'string') return null;
     return (
-      <Image
-        src={src}
-        alt={alt || ''}
-        width={800}
-        height={450}
-        className="rounded-xl my-6"
-      />
+      <figure className="my-8">
+        <div className="relative rounded-2xl overflow-hidden border border-slate-700/50 shadow-xl shadow-black/20">
+          <Image
+            src={src}
+            alt={alt || ''}
+            width={800}
+            height={450}
+            className="w-full"
+          />
+        </div>
+        {alt && (
+          <figcaption className="mt-3 text-center text-sm text-slate-500 italic">
+            {alt}
+          </figcaption>
+        )}
+      </figure>
     );
   },
   table: ({ children, className, ...props }: React.HTMLAttributes<HTMLTableElement>) => (
-    <div className="my-6 overflow-x-auto rounded-xl border border-border">
+    <div className="my-8 overflow-x-auto rounded-2xl border border-slate-700/50 bg-slate-800/30 backdrop-blur-sm">
       <table className={cn('w-full text-sm', className)} {...props}>
         {children}
       </table>
     </div>
   ),
   thead: ({ children, className, ...props }: React.HTMLAttributes<HTMLTableSectionElement>) => (
-    <thead className={cn('bg-secondary/50', className)} {...props}>
+    <thead className={cn('bg-slate-800/50 border-b border-slate-700/50', className)} {...props}>
       {children}
     </thead>
   ),
   th: ({ children, className, ...props }: React.HTMLAttributes<HTMLTableCellElement>) => (
-    <th className={cn('px-4 py-3 text-left font-semibold', className)} {...props}>
+    <th className={cn('px-5 py-3.5 text-left font-semibold text-slate-200', className)} {...props}>
       {children}
     </th>
   ),
   td: ({ children, className, ...props }: React.HTMLAttributes<HTMLTableCellElement>) => (
-    <td className={cn('px-4 py-3 border-t border-border', className)} {...props}>
+    <td className={cn('px-5 py-3.5 border-t border-slate-700/30 text-slate-400', className)} {...props}>
       {children}
     </td>
   ),
+  tr: ({ children, className, ...props }: React.HTMLAttributes<HTMLTableRowElement>) => (
+    <tr className={cn('hover:bg-slate-700/20 transition-colors', className)} {...props}>
+      {children}
+    </tr>
+  ),
   hr: ({ className, ...props }: React.HTMLAttributes<HTMLHRElement>) => (
-    <hr className={cn('my-8 border-border', className)} {...props} />
+    <hr
+      className={cn('my-12 border-0 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent', className)}
+      {...props}
+    />
+  ),
+  strong: ({ children, className, ...props }: React.HTMLAttributes<HTMLElement>) => (
+    <strong className={cn('font-semibold text-white', className)} {...props}>
+      {children}
+    </strong>
+  ),
+  em: ({ children, className, ...props }: React.HTMLAttributes<HTMLElement>) => (
+    <em className={cn('italic text-slate-300', className)} {...props}>
+      {children}
+    </em>
   ),
   // Custom components
   Callout,
