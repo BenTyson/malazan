@@ -1,6 +1,6 @@
 # QRWolf - Session Start Guide
 
-> **Last Updated**: December 30, 2025 (Blog & Learn Knowledge Base)
+> **Last Updated**: December 30, 2025 (Blog & Learn V2 UI Polish)
 > **Status**: Live
 > **Live URL**: https://qrwolf.com
 > **Admin Dashboard**: https://qrwolf.com/admin (restricted to ideaswithben@gmail.com)
@@ -263,6 +263,18 @@ QRWolf is a premium QR code generator with analytics and dynamic codes. Goal: pa
   - Initial content: 1 blog post, 4 wiki articles
   - Components: ArticleCard, TableOfContents, LearnSidebar, MDXContent
   - SEO: Per-article metadata, JSON-LD schema, OpenGraph tags
+- **Blog & Learn V2 UI Polish** (December 30, 2025):
+  - Upgraded all 11 blog/learn pages and components to match V2 design language
+  - ArticleCard: Shine effect on hover, gradient image overlay, scale/translate animations
+  - Hub pages (learn/page.tsx, blog/page.tsx): Floating orbs, dot patterns, staggered animations
+  - TableOfContents: Progress line with gradient, indicator dots, glass-heavy styling
+  - LearnSidebar: Category icons in gradient boxes, vertical progress line, active badges
+  - Article pages: Breadcrumb navigation, floating backgrounds, enhanced headers
+  - MDX components: Enhanced typography, anchor links on headings, styled blockquotes/tables/code
+  - Callout component: 5 variants (info, warning, tip, error, note) with icon boxes
+  - RelatedArticles: Gradient divider, staggered card animations
+  - Category pages: Consistent V2 styling with orbs and animations
+  - Design patterns: Glassmorphism, `animate-slide-up` with 80ms delays, `hover:scale-[1.02]`
 
 ### Planned Enhancements
 - QR code folders/organization

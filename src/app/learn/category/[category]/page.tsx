@@ -6,9 +6,8 @@ import { PublicNav } from '@/components/layout/PublicNav';
 import { Footer } from '@/components/layout/Footer';
 import { ArticleCard } from '@/components/content';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { LEARN_CATEGORIES } from '@/lib/content/utils';
-import { ArrowLeft, BookOpen, Cog, Lightbulb, Building2, CheckCircle2, Code2 } from 'lucide-react';
+import { BookOpen, Cog, Lightbulb, Building2, CheckCircle2, Code2, ChevronRight, GraduationCap } from 'lucide-react';
 
 interface PageProps {
   params: Promise<{ category: string }>;
@@ -60,37 +59,59 @@ export default async function LearnCategoryPage({ params }: PageProps) {
   return (
     <>
       <PublicNav showAuthButtons={true} />
-      <main className="min-h-screen pt-24 pb-16">
-        <div className="max-w-6xl mx-auto px-4">
-          {/* Back link */}
-          <Link href="/learn">
-            <Button variant="ghost" size="sm" className="mb-8 -ml-2">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              All Categories
-            </Button>
-          </Link>
+      <main className="min-h-screen pt-24 pb-16 relative overflow-hidden">
+        {/* Background decorations */}
+        <div className="absolute inset-0 pointer-events-none">
+          {/* Floating orbs */}
+          <div className="absolute top-40 left-10 w-80 h-80 rounded-full bg-primary/20 blur-[120px] animate-pulse" />
+          <div className="absolute top-80 right-20 w-72 h-72 rounded-full bg-cyan-500/15 blur-[150px]" />
+          {/* Dot pattern */}
+          <div
+            className="absolute inset-0 opacity-30"
+            style={{
+              backgroundImage: 'radial-gradient(rgba(20, 184, 166, 0.15) 1px, transparent 1px)',
+              backgroundSize: '32px 32px',
+            }}
+          />
+        </div>
+
+        <div className="max-w-6xl mx-auto px-4 relative">
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-2 text-sm text-slate-400 mb-8 animate-fade-in">
+            <Link href="/learn" className="hover:text-primary transition-colors flex items-center gap-1">
+              <GraduationCap className="w-4 h-4" />
+              Learn
+            </Link>
+            <ChevronRight className="w-4 h-4 text-slate-600" />
+            <span className="text-slate-500">{categoryInfo.label}</span>
+          </nav>
 
           {/* Header */}
-          <div className="text-center mb-12">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mx-auto mb-4">
+          <div className="text-center mb-12 animate-fade-in" style={{ animationDelay: '100ms' }}>
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-cyan-500/20 flex items-center justify-center text-primary mx-auto mb-6 shadow-xl shadow-primary/10">
               {icon}
             </div>
-            <Badge variant="secondary" className="mb-4">Category</Badge>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
+              {articles.length} {articles.length === 1 ? 'Article' : 'Articles'}
+            </Badge>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-5 tracking-tight">
               {categoryInfo.label}
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
               {categoryInfo.description}
             </p>
           </div>
 
           {/* Category Quick Nav */}
-          <div className="flex flex-wrap justify-center gap-2 mb-12">
+          <div className="flex flex-wrap justify-center gap-2 mb-12 animate-fade-in" style={{ animationDelay: '200ms' }}>
             {LEARN_CATEGORIES.map(cat => (
               <Link key={cat.slug} href={`/learn/category/${cat.slug}`}>
                 <Badge
+                  className={cat.slug === category
+                    ? 'cursor-pointer bg-primary text-primary-foreground px-4 py-1.5'
+                    : 'cursor-pointer border-slate-600/50 text-slate-400 hover:border-primary/50 hover:text-primary hover:bg-primary/10 transition-all px-4 py-1.5'
+                  }
                   variant={cat.slug === category ? 'default' : 'outline'}
-                  className="cursor-pointer hover:bg-primary/10"
                 >
                   {cat.label}
                 </Badge>
@@ -100,7 +121,7 @@ export default async function LearnCategoryPage({ params }: PageProps) {
 
           {articles.length === 0 ? (
             <div className="text-center py-16">
-              <p className="text-muted-foreground text-lg mb-4">
+              <p className="text-slate-400 text-lg mb-4">
                 No articles in this category yet.
               </p>
               <Link href="/learn" className="text-primary hover:underline">
@@ -121,6 +142,7 @@ export default async function LearnCategoryPage({ params }: PageProps) {
                   wordCount={article.metadata.wordCount}
                   type="learn"
                   featured={index === 0}
+                  animationDelay={index * 80}
                 />
               ))}
             </div>

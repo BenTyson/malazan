@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { LEARN_CATEGORIES } from '@/lib/content/utils';
-import { BookOpen, Cog, Lightbulb, Building2, CheckCircle2, Code2 } from 'lucide-react';
+import { BookOpen, Cog, Lightbulb, Building2, CheckCircle2, Code2, GraduationCap, ChevronRight } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface LearnArticle {
   title: string;
@@ -39,35 +40,70 @@ export function LearnSidebar({ articles }: LearnSidebarProps) {
   }));
 
   return (
-    <nav className="glass rounded-xl p-4 sticky top-24 max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-hide">
-      <h4 className="font-semibold mb-4 text-lg">Learn QR Codes</h4>
-      <div className="space-y-4">
+    <nav className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-5 sticky top-24 max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-hide shadow-xl shadow-black/10">
+      <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-700/50">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-cyan-500/20 flex items-center justify-center">
+          <GraduationCap className="w-5 h-5 text-primary" />
+        </div>
+        <div>
+          <h4 className="font-semibold text-white">Learn QR Codes</h4>
+          <p className="text-xs text-slate-400">Knowledge Base</p>
+        </div>
+      </div>
+
+      <div className="space-y-5">
         {articlesByCategory.map(category => (
           <div key={category.slug}>
             <Link
               href={`/learn/category/${category.slug}`}
-              className="flex items-center gap-2 font-medium text-sm text-muted-foreground hover:text-foreground mb-2 transition-colors"
+              className="group flex items-center justify-between mb-2 p-2 -mx-2 rounded-lg hover:bg-slate-700/30 transition-all"
             >
-              {category.icon}
-              {category.label}
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary/10 to-cyan-500/10 flex items-center justify-center text-primary group-hover:from-primary/20 group-hover:to-cyan-500/20 transition-colors">
+                  {category.icon}
+                </div>
+                <span className="font-medium text-sm text-slate-300 group-hover:text-white transition-colors">
+                  {category.label}
+                </span>
+              </div>
+              {category.articles.length > 0 && (
+                <Badge variant="outline" className="text-xs border-slate-600/50 text-slate-500">
+                  {category.articles.length}
+                </Badge>
+              )}
             </Link>
             {category.articles.length > 0 && (
-              <ul className="space-y-1 pl-6 border-l border-border">
-                {category.articles.map(article => (
-                  <li key={article.slug}>
-                    <Link
-                      href={`/learn/${article.slug}`}
-                      className={cn(
-                        'block py-1 text-sm transition-colors hover:text-primary',
-                        currentSlug === article.slug
-                          ? 'text-primary font-medium'
-                          : 'text-muted-foreground'
+              <ul className="space-y-0.5 ml-2 relative">
+                {/* Vertical line */}
+                <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-slate-700/50 rounded-full" />
+
+                {category.articles.map(article => {
+                  const isActive = currentSlug === article.slug;
+
+                  return (
+                    <li key={article.slug} className="relative">
+                      {/* Active indicator */}
+                      {isActive && (
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-gradient-to-b from-primary to-cyan-500 rounded-full" />
                       )}
-                    >
-                      {article.title}
-                    </Link>
-                  </li>
-                ))}
+                      <Link
+                        href={`/learn/${article.slug}`}
+                        className={cn(
+                          'group/item flex items-center gap-2 py-2 pl-4 pr-2 text-sm transition-all rounded-lg hover:bg-slate-700/30',
+                          isActive
+                            ? 'text-primary font-medium bg-primary/10'
+                            : 'text-slate-400 hover:text-white'
+                        )}
+                      >
+                        <ChevronRight className={cn(
+                          'w-3 h-3 transition-transform',
+                          isActive ? 'text-primary' : 'text-slate-600 group-hover/item:text-slate-400'
+                        )} />
+                        <span className="line-clamp-1">{article.title}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>
