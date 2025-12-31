@@ -1,6 +1,6 @@
 # QRWolf - Session Start Guide
 
-> **Last Updated**: December 30, 2025 (Blog & Learn V2 UI Polish)
+> **Last Updated**: December 31, 2025 (QR Codes Page V2 + Folders + Plausible Analytics)
 > **Status**: Live
 > **Live URL**: https://qrwolf.com
 > **Admin Dashboard**: https://qrwolf.com/admin (restricted to ideaswithben@gmail.com)
@@ -260,7 +260,7 @@ QRWolf is a premium QR code generator with analytics and dynamic codes. Goal: pa
   - Auto-generated table of contents with scroll-spy
   - Related articles section on each page
   - Dynamic sitemap includes all blog/learn pages
-  - Initial content: 1 blog post, 4 wiki articles
+  - Initial content: 2 blog posts, 12 wiki articles (all 6 categories populated)
   - Components: ArticleCard, TableOfContents, LearnSidebar, MDXContent
   - SEO: Per-article metadata, JSON-LD schema, OpenGraph tags
 - **Blog & Learn V2 UI Polish** (December 30, 2025):
@@ -275,9 +275,45 @@ QRWolf is a premium QR code generator with analytics and dynamic codes. Goal: pa
   - RelatedArticles: Gradient divider, staggered card animations
   - Category pages: Consistent V2 styling with orbs and animations
   - Design patterns: Glassmorphism, `animate-slide-up` with 80ms delays, `hover:scale-[1.02]`
+- **Learn Content Expansion** (December 31, 2025):
+  - Added 7 new learn articles using content skill
+  - All 6 categories now have 2+ articles (12 total):
+    - `qr-basics/` - what-is-a-qr-code, static-vs-dynamic-qr-codes
+    - `how-it-works/` - qr-code-error-correction, how-qr-code-scanning-works
+    - `use-cases/` - restaurant-menu-qr-codes, business-card-qr-codes
+    - `industries/` - qr-codes-for-retail, qr-codes-for-healthcare
+    - `best-practices/` - qr-code-design-best-practices, qr-code-placement-guide
+    - `technical/` - qr-code-data-capacity, qr-code-versions-explained
+  - Each article includes Callout components, tables, internal links, CTAs
+  - Proper relatedSlugs cross-linking between articles
+- **Google OAuth Branding Fix** (December 31, 2025):
+  - Domain verified in Google Search Console (DNS TXT record via Porkbun)
+  - OAuth consent screen now shows "QRWolf" branding (was showing Supabase URL)
+  - Submitted sitemap to Google Search Console: `https://qrwolf.com/sitemap.xml`
+  - Cleaned up stale sitemaps from previous domain owner (2020/2023 data)
+- **QR Codes Page V2 Upgrade** (December 31, 2025):
+  - V2 UI polish: Floating orbs, dot patterns, gradient text, staggered animations
+  - QRCodeCard: Shine effect, `hover:scale-[1.02] hover:-translate-y-1`, folder badge
+  - BulkBatchCard: Enhanced hover states and animations
+  - Stats cards with enhanced glassmorphism
+  - Page background decorations matching V2 design language
+- **Folder Organization** (December 31, 2025):
+  - New `folders` table in Supabase for organizing QR codes
+  - `folder_id` column added to `qr_codes` table
+  - FolderManager component: Create, edit, delete folders with color coding
+  - FolderModal component: Name input + 8 preset color options
+  - QRFilters component: Search, type filter (grouped by category), status filter
+  - Folder dropdown on QRCodeCard for quick folder assignment
+  - Optimistic updates for instant UI feedback
+  - Tier-gated: Free=0 folders, Pro=10 folders, Business=unlimited
+  - API routes: `/api/folders`, `/api/folders/[id]`, `/api/qr/[id]/folder`
+- **Plausible Analytics** (December 31, 2025):
+  - Privacy-first website analytics (no cookie banner needed)
+  - Custom script URL integration in layout.tsx
+  - Environment variable: `NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL`
+  - Dashboard: https://plausible.io/qrwolf.com
 
 ### Planned Enhancements
-- QR code folders/organization
 - Email scan alerts
 - Webhooks for scan notifications
 - Custom domain for short URLs
@@ -305,6 +341,9 @@ STRIPE_PRICE_BUSINESS_YEARLY=price_...
 
 # Resend (email)
 RESEND_API_KEY=re_...
+
+# Plausible Analytics (optional)
+NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL=https://plausible.io/js/pa-XXXXX.js
 ```
 
 ## Project Structure
@@ -343,7 +382,8 @@ src/
 │   ├── (dashboard)/
 │   │   ├── layout.tsx              # Dashboard layout
 │   │   ├── dashboard/page.tsx      # Overview with real stats + usage bar
-│   │   ├── qr-codes/page.tsx       # QR list with bulk batch grouping
+│   │   ├── qr-codes/page.tsx       # QR list with V2 UI, filters, folders
+│   │   ├── qr-codes/QRCodesContent.tsx # Client component for filters/state
 │   │   ├── qr-codes/new/page.tsx   # Create QR (with expiry/password/landing)
 │   │   ├── qr-codes/[id]/page.tsx  # Edit QR (dynamic only)
 │   │   ├── qr-codes/bulk/page.tsx  # Bulk QR generator (Business)
@@ -366,6 +406,9 @@ src/
 │   │   │   ├── delete-logo/route.ts      # Logo deletion
 │   │   │   ├── upload-media/route.ts     # Media upload for file types
 │   │   │   └── hash-password/route.ts    # Password hashing
+│   │   ├── folders/                # Folder management (Pro+)
+│   │   │   ├── route.ts            # List/create folders
+│   │   │   └── [id]/route.ts       # Get/update/delete folder
 │   │   ├── api-keys/               # API key management
 │   │   │   ├── route.ts            # Create/list keys
 │   │   │   └── [id]/route.ts       # Revoke key
@@ -398,11 +441,14 @@ src/
 │   ├── ui/                         # shadcn components
 │   ├── qr/
 │   │   ├── QRGenerator.tsx         # QR generation form (homepage)
-│   │   ├── QRCodeCard.tsx          # QR list item with actions
+│   │   ├── QRCodeCard.tsx          # QR list item with actions + folder dropdown
 │   │   ├── QRStyleEditor.tsx       # Color/preset customization
 │   │   ├── QRLogoUploader.tsx      # Logo upload (Pro feature)
 │   │   ├── QRTypeSelector.tsx      # Categorized type selector with Pro badges
 │   │   ├── QRWizard.tsx            # 5-step QR creation wizard (Type→Content→Style→Options→Download)
+│   │   ├── QRFilters.tsx           # Search, type filter, status filter, folder filter
+│   │   ├── FolderManager.tsx       # Folder list sidebar (Pro+ feature)
+│   │   ├── FolderModal.tsx         # Create/edit folder dialog
 │   │   ├── LogoUploader.tsx        # Single image upload component for logos/avatars
 │   │   ├── MediaUploader.tsx       # File upload component for media types
 │   │   ├── BulkBatchCard.tsx       # Expandable bulk batch display
@@ -530,15 +576,17 @@ Scan tracking in `/r/[code]/route.ts`:
 - what is a qr code, how qr codes work, qr code history
 - static vs dynamic qr code, qr code best practices
 
-**To enable Google Search Console:**
-1. Add verification meta tag to `layout.tsx` verification object
-2. Submit sitemap URL: `https://yourdomain.com/sitemap.xml`
+**Google Search Console:** Configured
+- Domain verified via DNS TXT record (Porkbun)
+- Sitemap submitted: `https://qrwolf.com/sitemap.xml`
+- URL: https://search.google.com/search-console (property: qrwolf.com)
 
 ## Database (Supabase)
 
 **Tables deployed:**
 - `profiles` - User profiles with subscription_tier, stripe_customer_id, subscription_status, **monthly_scan_count**, **scan_count_reset_at**
-- `qr_codes` - QR codes with content, style, short_code, scan_count, **expires_at**, **password_hash**, **active_from**, **active_until**, **show_landing_page**, **landing_page_title/description/button_text/theme**, **bulk_batch_id**, **media_files**
+- `qr_codes` - QR codes with content, style, short_code, scan_count, **expires_at**, **password_hash**, **active_from**, **active_until**, **show_landing_page**, **landing_page_title/description/button_text/theme**, **bulk_batch_id**, **media_files**, **folder_id**
+- `folders` - QR code organization (user_id, name, color) - Pro+ feature
 - `scans` - Scan analytics (device_type, os, browser, country, city, region, referrer)
 - `api_keys` - API keys for Business tier:
   - `key_hash` - SHA-256 hash of API key

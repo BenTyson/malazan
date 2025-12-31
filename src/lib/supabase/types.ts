@@ -1,3 +1,5 @@
+import type { QRContentType } from '@/lib/qr/types';
+
 export type SubscriptionTier = 'free' | 'pro' | 'business';
 
 export interface Profile {
@@ -12,12 +14,21 @@ export interface Profile {
   updated_at: string;
 }
 
+export interface Folder {
+  id: string;
+  user_id: string;
+  name: string;
+  color: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface QRCode {
   id: string;
   user_id: string;
   name: string;
   type: 'static' | 'dynamic';
-  content_type: 'url' | 'text' | 'wifi' | 'vcard' | 'email' | 'phone' | 'sms';
+  content_type: QRContentType;
   content: Record<string, any>;
   short_code: string | null;
   destination_url: string | null;
@@ -28,6 +39,12 @@ export interface QRCode {
     margin: number;
   };
   scan_count: number;
+  folder_id: string | null;
+  expires_at: string | null;
+  active_from: string | null;
+  active_until: string | null;
+  bulk_batch_id: string | null;
+  password_hash: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -78,6 +95,7 @@ export const TIER_LIMITS = {
     svgDownload: false,
     apiAccess: false,
     teamMembers: 1,
+    folders: 0,
   },
   pro: {
     staticQRCodes: Infinity,
@@ -87,6 +105,7 @@ export const TIER_LIMITS = {
     svgDownload: true,
     apiAccess: false,
     teamMembers: 1,
+    folders: 10,
   },
   business: {
     staticQRCodes: Infinity,
@@ -96,5 +115,6 @@ export const TIER_LIMITS = {
     svgDownload: true,
     apiAccess: true,
     teamMembers: 3,
+    folders: Infinity,
   },
 } as const;

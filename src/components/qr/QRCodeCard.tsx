@@ -4,8 +4,16 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { generateQRDataURL, generateQRSVG, downloadQRPNG, downloadQRSVG } from '@/lib/qr/generator';
 import type { QRContent, QRStyleOptions } from '@/lib/qr/types';
+import type { Folder } from '@/lib/supabase/types';
 import { toast } from 'sonner';
 import Link from 'next/link';
 
@@ -14,25 +22,29 @@ interface QRCodeData {
   name: string;
   type: 'static' | 'dynamic';
   content_type: string;
-  content: QRContent;
+  content: QRContent | Record<string, any>;
   short_code: string | null;
   destination_url: string | null;
-  style: QRStyleOptions;
+  style: QRStyleOptions | Record<string, any>;
   scan_count: number;
   created_at: string;
   expires_at: string | null;
   active_from: string | null;
   active_until: string | null;
   password_hash: string | null;
+  folder_id?: string | null;
 }
 
 interface QRCodeCardProps {
   qrCode: QRCodeData;
   index?: number;
   compact?: boolean;
+  folderColor?: string | null;
+  folders?: Folder[];
+  onFolderChange?: (qrCodeId: string, folderId: string | null) => void;
 }
 
-export function QRCodeCard({ qrCode, index = 0, compact = false }: QRCodeCardProps) {
+export function QRCodeCard({ qrCode, index = 0, compact = false, folderColor, folders = [], onFolderChange }: QRCodeCardProps) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showActions, setShowActions] = useState(false);
@@ -40,7 +52,7 @@ export function QRCodeCard({ qrCode, index = 0, compact = false }: QRCodeCardPro
 
   // Generate QR preview on mount
   useEffect(() => {
-    generateQRDataURL(qrCode.content, { ...qrCode.style, width: 128 })
+    generateQRDataURL(qrCode.content as QRContent, { ...(qrCode.style as QRStyleOptions), width: 128 })
       .then(setQRDataURL)
       .catch(console.error);
   }, [qrCode.content, qrCode.style]);
@@ -72,7 +84,7 @@ export function QRCodeCard({ qrCode, index = 0, compact = false }: QRCodeCardPro
 
   const handleDownloadPNG = async () => {
     try {
-      const dataURL = await generateQRDataURL(qrCode.content, { ...qrCode.style, width: 1024 });
+      const dataURL = await generateQRDataURL(qrCode.content as QRContent, { ...(qrCode.style as QRStyleOptions), width: 1024 });
       downloadQRPNG(dataURL, `qrwolf-${(qrCode.name || 'code').toLowerCase().replace(/\s+/g, '-')}`);
       toast.success('PNG downloaded');
     } catch (error) {
@@ -82,7 +94,7 @@ export function QRCodeCard({ qrCode, index = 0, compact = false }: QRCodeCardPro
 
   const handleDownloadSVG = async () => {
     try {
-      const svg = await generateQRSVG(qrCode.content, qrCode.style);
+      const svg = await generateQRSVG(qrCode.content as QRContent, qrCode.style as QRStyleOptions);
       downloadQRSVG(svg, `qrwolf-${(qrCode.name || 'code').toLowerCase().replace(/\s+/g, '-')}`);
       toast.success('SVG downloaded');
     } catch (error) {
@@ -115,6 +127,19 @@ export function QRCodeCard({ qrCode, index = 0, compact = false }: QRCodeCardPro
       case 'email': return <MailIcon className="w-4 h-4" />;
       case 'phone': return <PhoneIcon className="w-4 h-4" />;
       case 'sms': return <MessageIcon className="w-4 h-4" />;
+      case 'whatsapp': return <WhatsAppIcon className="w-4 h-4" />;
+      case 'facebook': return <FacebookIcon className="w-4 h-4" />;
+      case 'instagram': return <InstagramIcon className="w-4 h-4" />;
+      case 'apps': return <AppsIcon className="w-4 h-4" />;
+      case 'pdf': return <PDFIcon className="w-4 h-4" />;
+      case 'images': return <ImagesIcon className="w-4 h-4" />;
+      case 'video': return <VideoIcon className="w-4 h-4" />;
+      case 'mp3': return <MusicIcon className="w-4 h-4" />;
+      case 'menu': return <MenuIcon className="w-4 h-4" />;
+      case 'business': return <BusinessIcon className="w-4 h-4" />;
+      case 'links': return <LinksIcon className="w-4 h-4" />;
+      case 'coupon': return <CouponIcon className="w-4 h-4" />;
+      case 'social': return <SocialIcon className="w-4 h-4" />;
       default: return <TextIcon className="w-4 h-4" />;
     }
   };
@@ -176,28 +201,87 @@ export function QRCodeCard({ qrCode, index = 0, compact = false }: QRCodeCardPro
       case 'email': return 'amber';
       case 'phone': return 'rose';
       case 'sms': return 'cyan';
+      case 'whatsapp': return 'emerald';
+      case 'facebook': return 'blue';
+      case 'instagram': return 'pink';
+      case 'apps': return 'indigo';
+      case 'pdf': return 'red';
+      case 'images': return 'teal';
+      case 'video': return 'red';
+      case 'mp3': return 'purple';
+      case 'menu': return 'orange';
+      case 'business': return 'slate';
+      case 'links': return 'primary';
+      case 'coupon': return 'amber';
+      case 'social': return 'cyan';
       default: return 'primary';
     }
   };
 
   const accent = getAccentColor();
 
+  // Get gradient classes for accent
+  const getAccentGradient = () => {
+    switch (accent) {
+      case 'blue': return 'from-blue-500 to-cyan-500';
+      case 'emerald': return 'from-emerald-500 to-teal-500';
+      case 'violet': return 'from-violet-500 to-purple-500';
+      case 'amber': return 'from-amber-500 to-orange-500';
+      case 'rose': return 'from-rose-500 to-pink-500';
+      case 'cyan': return 'from-cyan-500 to-blue-500';
+      case 'pink': return 'from-pink-500 to-rose-500';
+      case 'indigo': return 'from-indigo-500 to-blue-500';
+      case 'red': return 'from-red-500 to-rose-500';
+      case 'teal': return 'from-teal-500 to-cyan-500';
+      case 'purple': return 'from-purple-500 to-violet-500';
+      case 'orange': return 'from-orange-500 to-amber-500';
+      case 'slate': return 'from-slate-500 to-gray-500';
+      default: return 'from-primary to-cyan-500';
+    }
+  };
+
+  const getAccentBg = () => {
+    switch (accent) {
+      case 'blue': return 'bg-blue-500/10 text-blue-500';
+      case 'emerald': return 'bg-emerald-500/10 text-emerald-500';
+      case 'violet': return 'bg-violet-500/10 text-violet-500';
+      case 'amber': return 'bg-amber-500/10 text-amber-600';
+      case 'rose': return 'bg-rose-500/10 text-rose-500';
+      case 'cyan': return 'bg-cyan-500/10 text-cyan-500';
+      case 'pink': return 'bg-pink-500/10 text-pink-500';
+      case 'indigo': return 'bg-indigo-500/10 text-indigo-500';
+      case 'red': return 'bg-red-500/10 text-red-500';
+      case 'teal': return 'bg-teal-500/10 text-teal-500';
+      case 'purple': return 'bg-purple-500/10 text-purple-500';
+      case 'orange': return 'bg-orange-500/10 text-orange-500';
+      case 'slate': return 'bg-slate-500/10 text-slate-400';
+      default: return 'bg-primary/10 text-primary';
+    }
+  };
+
   return (
     <div
-      className="group relative rounded-2xl border border-border/50 bg-card/50 backdrop-blur overflow-hidden hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5"
+      className="group relative rounded-2xl border border-border/50 bg-card/50 backdrop-blur overflow-hidden hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 hover:scale-[1.02] hover:-translate-y-1 transition-all duration-300 animate-slide-up"
+      style={{ animationDelay: `${index * 80}ms` }}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
+      {/* Shine effect on hover */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none overflow-hidden z-10">
+        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+      </div>
+
+      {/* Folder indicator */}
+      {folderColor && (
+        <div
+          className="absolute top-0 right-0 w-3 h-3 rounded-bl-lg"
+          style={{ backgroundColor: folderColor }}
+          title="In folder"
+        />
+      )}
+
       {/* Top accent bar */}
-      <div className={`h-1 bg-gradient-to-r ${
-        accent === 'blue' ? 'from-blue-500 to-cyan-500' :
-        accent === 'emerald' ? 'from-emerald-500 to-teal-500' :
-        accent === 'violet' ? 'from-violet-500 to-purple-500' :
-        accent === 'amber' ? 'from-amber-500 to-orange-500' :
-        accent === 'rose' ? 'from-rose-500 to-pink-500' :
-        accent === 'cyan' ? 'from-cyan-500 to-blue-500' :
-        'from-primary to-cyan-500'
-      }`} />
+      <div className={`h-1 bg-gradient-to-r ${getAccentGradient()}`} />
 
       <div className="p-4">
         <div className="flex gap-4">
@@ -223,15 +307,7 @@ export function QRCodeCard({ qrCode, index = 0, compact = false }: QRCodeCardPro
             </div>
 
             <div className="flex items-center gap-2 mt-1.5">
-              <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${
-                accent === 'blue' ? 'bg-blue-500/10 text-blue-500' :
-                accent === 'emerald' ? 'bg-emerald-500/10 text-emerald-500' :
-                accent === 'violet' ? 'bg-violet-500/10 text-violet-500' :
-                accent === 'amber' ? 'bg-amber-500/10 text-amber-600' :
-                accent === 'rose' ? 'bg-rose-500/10 text-rose-500' :
-                accent === 'cyan' ? 'bg-cyan-500/10 text-cyan-500' :
-                'bg-primary/10 text-primary'
-              }`}>
+              <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${getAccentBg()}`}>
                 {getContentTypeIcon()}
                 <span className="capitalize">{qrCode.content_type}</span>
               </span>
@@ -305,6 +381,42 @@ export function QRCodeCard({ qrCode, index = 0, compact = false }: QRCodeCardPro
             >
               <CopyIcon className="w-3 h-3" aria-hidden="true" />
             </Button>
+          )}
+          {folders.length > 0 && onFolderChange && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs px-3"
+                  aria-label="Move to folder"
+                >
+                  <FolderIcon className="w-3 h-3" aria-hidden="true" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-card border-border/50">
+                <DropdownMenuItem
+                  onClick={() => onFolderChange(qrCode.id, null)}
+                  className={!qrCode.folder_id ? 'bg-primary/10 text-primary' : ''}
+                >
+                  No Folder
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {folders.map((folder) => (
+                  <DropdownMenuItem
+                    key={folder.id}
+                    onClick={() => onFolderChange(qrCode.id, folder.id)}
+                    className={qrCode.folder_id === folder.id ? 'bg-primary/10 text-primary' : ''}
+                  >
+                    <div
+                      className="w-3 h-3 rounded-full mr-2"
+                      style={{ backgroundColor: folder.color }}
+                    />
+                    {folder.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
           <Button
             variant="outline"
@@ -449,6 +561,144 @@ function ClockIcon({ className }: { className?: string }) {
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <circle cx="12" cy="12" r="10" />
       <polyline points="12 6 12 12 16 14" />
+    </svg>
+  );
+}
+
+// Additional icons for new QR types
+function WhatsAppIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+    </svg>
+  );
+}
+
+function FacebookIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+    </svg>
+  );
+}
+
+function InstagramIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+    </svg>
+  );
+}
+
+function AppsIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+      <line x1="12" y1="18" x2="12.01" y2="18" />
+    </svg>
+  );
+}
+
+function PDFIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+      <polyline points="10 9 9 9 8 9" />
+    </svg>
+  );
+}
+
+function ImagesIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <polyline points="21 15 16 10 5 21" />
+    </svg>
+  );
+}
+
+function VideoIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <polygon points="23 7 16 12 23 17 23 7" />
+      <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+    </svg>
+  );
+}
+
+function MusicIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M9 18V5l12-2v13" />
+      <circle cx="6" cy="18" r="3" />
+      <circle cx="18" cy="16" r="3" />
+    </svg>
+  );
+}
+
+function MenuIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M3 6h18M3 12h18M3 18h18" />
+    </svg>
+  );
+}
+
+function BusinessIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+    </svg>
+  );
+}
+
+function LinksIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <line x1="8" y1="6" x2="21" y2="6" />
+      <line x1="8" y1="12" x2="21" y2="12" />
+      <line x1="8" y1="18" x2="21" y2="18" />
+      <line x1="3" y1="6" x2="3.01" y2="6" />
+      <line x1="3" y1="12" x2="3.01" y2="12" />
+      <line x1="3" y1="18" x2="3.01" y2="18" />
+    </svg>
+  );
+}
+
+function CouponIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
+      <path d="M13 5v2" />
+      <path d="M13 17v2" />
+      <path d="M13 11v2" />
+    </svg>
+  );
+}
+
+function SocialIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+    </svg>
+  );
+}
+
+function FolderIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
     </svg>
   );
 }
