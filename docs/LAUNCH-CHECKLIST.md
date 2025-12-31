@@ -2,7 +2,7 @@
 
 > **Live URL**: https://qrwolf.com
 > **Status**: LAUNCHED (December 28, 2025)
-> **Last Updated**: December 30, 2025 (Blog & Learn V2 UI Polish)
+> **Last Updated**: December 31, 2025 (QR Codes Page V2 + Folders + Plausible Analytics)
 > **Admin Dashboard**: https://qrwolf.com/admin
 
 See also: `docs/SESSION-START.md` for full project context
@@ -21,6 +21,7 @@ See also: `docs/SESSION-START.md` for full project context
   - [x] `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (live key)
   - [x] `STRIPE_WEBHOOK_SECRET` (production webhook)
   - [x] All 4 `STRIPE_PRICE_*` variables (live prices)
+  - [x] `NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL` (Plausible analytics)
 - [x] **Verify deployment is healthy**: `railway logs`
 - [x] **Custom domain configured**: qrwolf.com with SSL
 
@@ -36,13 +37,15 @@ See also: `docs/SESSION-START.md` for full project context
 - [x] **Google OAuth configured**: Client ID and secret set
 - [x] **Database migrations applied**: All tables exist
   - `profiles` (with `monthly_scan_count`, `scan_count_reset_at`)
-  - `qr_codes` (with `expires_at`, `password_hash`, `active_from`, `active_until`, `show_landing_page`, `landing_page_*`, `bulk_batch_id`, `media_files`)
+  - `qr_codes` (with `expires_at`, `password_hash`, `active_from`, `active_until`, `show_landing_page`, `landing_page_*`, `bulk_batch_id`, `media_files`, `folder_id`)
+  - `folders` (for QR code organization - Pro+ feature)
   - `scans`
   - `api_keys`
   - `teams`, `team_members`, `team_invites`
 - [x] **QR Types expansion migrations applied**:
   - `20251228000001_add_new_qr_types.sql` - content_type CHECK constraint
   - `20251228000002_add_media_storage.sql` - qr-media storage bucket
+  - `20251231000001_add_folders.sql` - folders table + qr_codes.folder_id
 - [x] **RLS policies enabled**: All tables
 
 ---
@@ -296,12 +299,25 @@ All landing pages now feature:
 
 ---
 
+## 9. Analytics (Plausible)
+
+- [ ] Sign up at https://plausible.io
+- [ ] Add site: `qrwolf.com`
+- [ ] Copy the custom script URL from Plausible setup page
+- [ ] Add environment variable to Railway:
+  - `NEXT_PUBLIC_PLAUSIBLE_SCRIPT_URL=https://plausible.io/js/pa-XXXXX.js`
+- [ ] Redeploy and verify script loads
+- [ ] Dashboard: https://plausible.io/qrwolf.com
+
+---
+
 ## Post-Launch Monitoring
 
 - [ ] Set up Railway notifications (Slack/Discord/Email)
 - [ ] Monitor error logs: `railway logs`
 - [ ] Check Stripe dashboard for payments
 - [ ] Monitor Supabase usage
+- [ ] Check Plausible for traffic stats
 
 ---
 
