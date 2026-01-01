@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
+import { LogoBestPractices } from '@/components/qr/LogoBestPractices';
 import type { QRStyleOptions } from '@/lib/qr/types';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -232,18 +233,28 @@ export function QRLogoUploader({ style, onChange, userTier = 'free' }: QRLogoUpl
           {uploadError && (
             <p className="text-sm text-destructive mt-2">{uploadError}</p>
           )}
+
+          {/* Best Practices - visible after upload area */}
+          <div className="mt-6 pt-6 border-t border-border/50">
+            <LogoBestPractices />
+          </div>
         </>
       ) : (
         // Upgrade Prompt for Free Users
-        <div className="rounded-lg border border-border/50 bg-secondary/30 p-4">
-          <p className="text-sm text-muted-foreground mb-3">
-            Add your brand logo to the center of QR codes to increase brand recognition.
-          </p>
-          <Link href="/plans">
-            <Button size="sm" className="w-full">
-              View Plans
-            </Button>
-          </Link>
+        <div className="space-y-6">
+          <div className="rounded-lg border border-border/50 bg-secondary/30 p-4">
+            <p className="text-sm text-muted-foreground mb-3">
+              Add your brand logo to the center of QR codes to increase brand recognition.
+            </p>
+            <Link href="/plans">
+              <Button size="sm" className="w-full">
+                View Plans
+              </Button>
+            </Link>
+          </div>
+
+          {/* Best Practices - visible to free users too */}
+          <LogoBestPractices />
         </div>
       )}
     </Card>
